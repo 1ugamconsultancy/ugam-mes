@@ -76,13 +76,20 @@ export class AppController {
         };
       }
 
-      await this.db.query(sqlContent);
-      const res = await this.db.query('SELECT username, role FROM users');
+      // Filter out any psql slash lines
+      const cleanSql = sqlContent
+        .split('\n')
+        .filter(line => !line.trim().startsWith('\\'))
+        .join('\n');
+
+      await this.db.query(cleanSql);
+      const res = await this.db.query('SELECT username, role FROM users ORDER BY role');
 
       return {
         success: true,
         message: 'Database schema, tables, and seed users initialized successfully!',
         sourceFile: foundPath,
+        usersCount: res.rows.length,
         usersInitialized: res.rows,
         defaultPassword: 'All accounts can log in with password: MES123',
       };

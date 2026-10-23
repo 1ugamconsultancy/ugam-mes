@@ -71,7 +71,11 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           }
         }
         if (sqlContent) {
-          await this.pool.query(sqlContent);
+          const cleanSql = sqlContent
+            .split('\n')
+            .filter(line => !line.trim().startsWith('\\'))
+            .join('\n');
+          await this.pool.query(cleanSql);
           console.log('✅ Auto-bootstrap completed successfully! All tables, stations and seed users initialized.');
         } else {
           console.warn('Could not locate setup_ugam_mes_db.sql for auto-bootstrap.');
