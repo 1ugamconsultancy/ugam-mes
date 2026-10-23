@@ -1,0 +1,30 @@
+# Dependencies & Builds
+**/node_modules/
+**/dist/
+**/.security-build/
+**/*.tsbuildinfo
+**/coverage/
+
+# Docker TARs & ZIP Archives (>100MB, exceeds GitHub limits)
+*.tar
+**/*.tar
+*.zip
+**/*.zip
+UGAM_MES_Deployable.zip
+Lumos_MES_Deployable.zip
+
+# Persistent Database & Cache Directories
+pgdata/
+redisdata/
+backups/
+tmp/
+
+# Environment & Sensitive Credentials
+.env
+**/.env
+security-bootstrap-credentials.json
+security-account-audit.json
+reviewed-plant-mapping.json
+security-live-migration.sql
+security-reset-accounts.cjs
+set_pass.js

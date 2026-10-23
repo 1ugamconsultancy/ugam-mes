@@ -1,0 +1,99 @@
+name: ugam_mes
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: ugam-postgres
+    environment:
+      POSTGRES_DB: ugam_mes
+      POSTGRES_USER: mes_admin
+      POSTGRES_PASSWORD: SecretMESPassword123
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./seed.sql:/docker-entrypoint-initdb.d/2-seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mes_admin -d ugam_mes"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ugam-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: ugam-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ugam-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ugam-backend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: mes_admin
+      DB_PASSWORD: SecretMESPassword123
+      DB_DATABASE: ugam_mes
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:?Set a unique JWT_SECRET of at least 32 characters}
+      APP_MODE: ${APP_MODE:-production}
+      OPC_ALLOWED_ENDPOINTS: ${OPC_ALLOWED_ENDPOINTS:-}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8085,http://localhost:5173}
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ugam-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ugam-frontend
+    ports:
+      - "8085:80"
+    depends_on:
+      - backend
+    networks:
+      - ugam-network
+
+  adminer:
+    image: adminer:latest
+    container_name: ugam-adminer
+    ports:
+      - "8082:8080"
+    depends_on:
+      - postgres
+    networks:
+      - ugam-network
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  ugam-network:
+    driver: bridge

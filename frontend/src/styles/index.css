@@ -1,0 +1,330 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #ffffff;
+    --bg-section: #f4f5f6;
+    --bg-card: #ffffff;
+    --text-primary: #171717;      /* Brand Black / High-contrast Slate-900 */
+    --text-secondary: #334155;    /* High-contrast Slate-700 */
+    --border-color: rgba(23, 74, 124, 0.20);
+    --border-widget: rgba(23, 74, 124, 0.25);
+    --shadow-color: rgba(17, 17, 17, 0.05);
+
+    --color-primary-dark: #111111;
+    --color-corporate: #142a45;
+    --color-primary: #174a7c;
+    --color-accent: #f5a623;
+    --color-white: #ffffff;
+    --color-light-grey: #f4f5f6;
+    --color-medium-grey: #777777;
+    --color-dark-grey: #333333;
+
+    --color-running: #10b981;
+    --color-idle: #f5a623;
+    --color-breakdown: #ef4444;
+    --color-setup: #174a7c;
+    --color-maintenance: #8b5cf6;
+  }
+
+  /* Dark Industrial Theme Variables */
+  [data-theme='dark'] {
+    --bg-primary: #111111;
+    --bg-section: #142a45;
+    --bg-card: #142a45;
+    --text-primary: #ffffff;
+    --text-secondary: #CBD5E1;    /* High contrast Slate-300 */
+    --border-color: #1f3a5c;
+    --border-widget: rgba(23, 74, 124, 0.40);
+    --shadow-color: rgba(0, 0, 0, 0.4);
+
+    --color-primary-dark: #111111;
+    --color-corporate: #142a45;
+    --color-primary: #174a7c;
+    --color-accent: #f5a623;
+    --color-white: #ffffff;
+    --color-light-grey: #f4f5f6;
+    --color-medium-grey: #777777;
+    --color-dark-grey: #333333;
+
+    --color-running: #10b981;
+    --color-idle: #f5a623;
+    --color-breakdown: #ef4444;
+    --color-setup: #174a7c;
+    --color-maintenance: #8b5cf6;
+  }
+
+  /* Factory Floor Touchscreen Optimized Theme Variables */
+  [data-mode='factory'] {
+    --bg-primary: #111111;
+    --bg-section: #142a45;
+    --bg-card: #142a45;
+    --text-primary: #ffffff;
+    --text-secondary: #E2E8F0;    /* High contrast Slate-200 */
+    --border-color: #25466e;
+    --border-widget: rgba(23, 74, 124, 0.45);
+    --shadow-color: rgba(0, 0, 0, 0.6);
+
+    --color-primary-dark: #111111;
+    --color-corporate: #142a45;
+    --color-primary: #174a7c;
+    --color-accent: #f5a623;
+    --color-white: #ffffff;
+    --color-light-grey: #f4f5f6;
+    --color-medium-grey: #777777;
+    --color-dark-grey: #333333;
+
+    --color-running: #10b981;
+    --color-idle: #f5a623;
+    --color-breakdown: #ef4444;
+    --color-setup: #174a7c;
+    --color-maintenance: #8b5cf6;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Outfit', 'Inter', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Scrollbar for Sleek UI */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Dedicated Left Pane Navigation Scrollbar */
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 3px;
+}
+[data-theme='dark'] .sidebar-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 3px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(23, 74, 124, 0.85);
+}
+
+/* Industrial Widget Content Scrollbar */
+.mes-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+}
+[data-theme='dark'] .mes-scrollbar {
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+.mes-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.mes-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+}
+[data-theme='dark'] .mes-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+}
+.mes-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.5);
+  border-radius: 4px;
+}
+.mes-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #174A7C;
+}
+
+/* Industrial Card & Widget Styles with Signature UGAM Next Gen MES Light Borders */
+.industrial-card,
+.widget-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-widget);
+  box-shadow: 0 4px 20px -2px var(--shadow-color);
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-theme='dark'] .industrial-card,
+[data-theme='dark'] .widget-card {
+  border: 2px solid var(--border-widget);
+}
+[data-mode='factory'] .industrial-card,
+[data-mode='factory'] .widget-card {
+  border: 2px solid var(--border-widget);
+}
+
+.industrial-card:hover,
+.widget-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px -4px var(--shadow-color);
+}
+
+/* Glow effects for machine status indicators */
+.glow-running {
+  box-shadow: 0 0 12px var(--color-running);
+  animation: pulse-glow 2s infinite alternate;
+}
+.glow-idle {
+  box-shadow: 0 0 12px var(--color-idle);
+  animation: pulse-glow 2s infinite alternate;
+}
+.glow-breakdown {
+  box-shadow: 0 0 16px var(--color-breakdown);
+  animation: pulse-breakdown 1s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  0% { opacity: 0.7; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes pulse-breakdown {
+  0% { transform: scale(0.9); box-shadow: 0 0 8px var(--color-breakdown); }
+  100% { transform: scale(1.1); box-shadow: 0 0 20px var(--color-breakdown); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.15s ease-out forwards;
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-scaleUp {
+  animation: scaleUp 0.15s ease-out forwards;
+}
+
+/* Standardized Industrial Action Buttons (matching "Add Material") */
+.btn-mes-primary {
+  background-color: #174A7C;
+  color: #FFFFFF;
+  font-weight: 700;
+  transition: all 0.15s ease;
+}
+.btn-mes-primary:hover:not(:disabled) {
+  background-color: #142A45;
+}
+.btn-mes-corporate {
+  background-color: #142A45;
+  color: #FFFFFF;
+  border: 1px solid #1F3A5C;
+  font-weight: 700;
+  transition: all 0.15s ease;
+}
+.btn-mes-corporate:hover:not(:disabled) {
+  background-color: #102237;
+}
+.btn-mes-secondary {
+  background-color: transparent;
+  border: 1px solid #CBD1D7;
+  color: #333333;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+[data-theme='dark'] .btn-mes-secondary {
+  border-color: #1F3A5C;
+  color: #CBD1D7;
+}
+.btn-mes-secondary:hover:not(:disabled) {
+  background-color: #F4F5F6;
+}
+[data-theme='dark'] .btn-mes-secondary:hover:not(:disabled) {
+  background-color: #142A45;
+  color: #FFFFFF;
+}
+
+/* Large Touch Target Buttons for Factory Operators */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+  padding: 12px 24px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: active 0.1s ease;
+}
+.touch-target:active {
+  transform: scale(0.96);
+  opacity: 0.85;
+}
+
+/* Custom Gantt View Timeline Grids */
+.gantt-grid {
+  display: grid;
+  grid-template-columns: repeat(24, minmax(60px, 1fr));
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Dark Theme global text color overrides for hard-coded dark classes */
+[data-theme='dark'] .text-slate-900,
+[data-theme='dark'] .text-slate-800,
+[data-theme='dark'] .text-slate-700,
+[data-theme='dark'] .text-black,
+[data-theme='dark'] .text-gray-900,
+[data-theme='dark'] .text-gray-800,
+[data-theme='dark'] .text-gray-700,
+[data-mode='factory'] .text-slate-900,
+[data-mode='factory'] .text-slate-800,
+[data-mode='factory'] .text-slate-700,
+[data-mode='factory'] .text-black,
+[data-mode='factory'] .text-gray-900,
+[data-mode='factory'] .text-gray-800,
+[data-mode='factory'] .text-gray-700 {
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .text-slate-600,
+[data-theme='dark'] .text-slate-500,
+[data-theme='dark'] .text-slate-400,
+[data-theme='dark'] .text-gray-650,
+[data-theme='dark'] .text-gray-600,
+[data-theme='dark'] .text-gray-500,
+[data-theme='dark'] .text-gray-400,
+[data-mode='factory'] .text-slate-600,
+[data-mode='factory'] .text-slate-500,
+[data-mode='factory'] .text-slate-400,
+[data-mode='factory'] .text-gray-650,
+[data-mode='factory'] .text-gray-600,
+[data-mode='factory'] .text-gray-500,
+[data-mode='factory'] .text-gray-400 {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme='dark'] table,
+[data-theme='dark'] th,
+[data-theme='dark'] td,
+[data-mode='factory'] table,
+[data-mode='factory'] th,
+[data-mode='factory'] td {
+  color: var(--text-primary);
+}
