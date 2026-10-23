@@ -15,9 +15,20 @@ async function bootstrap() {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
 
-  // Enable CORS first (essential to allow browser fetches from port 80 to port 3000)
+  // Enable CORS (supports local ports, production Vercel app, and Vercel preview deploys)
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app') ||
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1')
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
@@ -41,7 +52,7 @@ async function bootstrap() {
   );
 
   const port = process.env.PORT || 3000;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   console.log(`UGAM Next Gen MES Backend running on port: ${port}`);
 }
 bootstrap();

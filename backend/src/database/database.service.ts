@@ -20,14 +20,52 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
     // Test connection
     this.pool.query('SELECT NOW()')
-      .then(() => {
+      .then(async () => {
         this.isConnected = true;
         console.log('Successfully connected to PostgreSQL Database Server');
+        await this.autoBootstrapIfEmpty();
       })
       .catch((err) => {
         this.isConnected = false;
         console.warn('PostgreSQL database connection failed. Falling back to local mock storage. Error:', err.message);
       });
+  }
+
+  private async autoBootstrapIfEmpty() {
+    try {
+      const check = await this.pool.query(
+        "SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users'"
+      );
+      if (check.rowCount === 0) {
+        console.log('⚠️ Database is empty. Running auto-bootstrap from setup_ugam_mes_db.sql...');
+        const path = require('path');
+        const fs = require('fs');
+        const candidatePaths = [
+          path.join(process.cwd(), 'setup_ugam_mes_db.sql'),
+          path.join(__dirname, '..', '..', 'setup_ugam_mes_db.sql'),
+          path.join(__dirname, '..', '..', '..', 'setup_ugam_mes_db.sql'),
+          '/app/setup_ugam_mes_db.sql'
+        ];
+        let sqlContent = '';
+        for (const p of candidatePaths) {
+          if (fs.existsSync(p)) {
+            sqlContent = fs.readFileSync(p, 'utf8');
+            console.log(`Found bootstrap script at: ${p}`);
+            break;
+          }
+        }
+        if (sqlContent) {
+          await this.pool.query(sqlContent);
+          console.log('✅ Auto-bootstrap completed successfully! All tables, stations and seed users initialized.');
+        } else {
+          console.warn('Could not locate setup_ugam_mes_db.sql for auto-bootstrap.');
+        }
+      } else {
+        console.log('PostgreSQL database schema verified (users table exists).');
+      }
+    } catch (err: any) {
+      console.error('Error during auto-bootstrap check:', err?.message || err);
+    }
   }
 
   async onModuleDestroy() {

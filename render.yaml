@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: ugam-backend
+    runtime: docker
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    plan: free
+    region: oregon
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DB_HOST
+        fromDatabase:
+          name: ugam-postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: ugam-postgres
+          property: port
+      - key: DB_USERNAME
+        fromDatabase:
+          name: ugam-postgres
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: ugam-postgres
+          property: password
+      - key: DB_DATABASE
+        fromDatabase:
+          name: ugam-postgres
+          property: database
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://ugam-mes.vercel.app,http://localhost:8085,http://localhost:5173
+
+databases:
+  - name: ugam-postgres
+    databaseName: ugam_mes
+    user: mes_admin
+    plan: free
+    region: oregon
