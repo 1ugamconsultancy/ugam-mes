@@ -15,7 +15,8 @@ export class AppController {
     let usersCount = 0;
     try {
       if (this.db.isDatabaseOnline()) {
-        const res = await this.db.query("SELECT COUNT(*) as count FROM users");
+        await this.db.query("SET search_path = public, pg_catalog;");
+        const res = await this.db.query("SELECT COUNT(*) as count FROM public.users");
         usersCount = parseInt(res.rows[0]?.count || '0', 10);
         dbStatus = 'connected';
       }
@@ -76,14 +77,16 @@ export class AppController {
         };
       }
 
-      // Filter out any psql slash lines
+      // Filter out any psql slash lines and force search_path to public
       const cleanSql = sqlContent
         .split('\n')
         .filter(line => !line.trim().startsWith('\\'))
         .join('\n');
 
+      await this.db.query("SET search_path = public, pg_catalog;");
       await this.db.query(cleanSql);
-      const res = await this.db.query('SELECT username, role FROM users ORDER BY role');
+      await this.db.query("SET search_path = public, pg_catalog;");
+      const res = await this.db.query('SELECT username, role FROM public.users ORDER BY role');
 
       return {
         success: true,
