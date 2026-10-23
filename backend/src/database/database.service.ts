@@ -1,5 +1,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { Pool, QueryResult } from 'pg';
+import * as path from 'path';
+import * as fs from 'fs';
 
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
@@ -7,16 +9,32 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private isConnected = false;
 
   onModuleInit() {
-    this.pool = new Pool({
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432', 10),
-      user: process.env.DB_USERNAME || 'mes_admin',
-      password: process.env.DB_PASSWORD || 'SecretMESPassword123',
-      database: process.env.DB_DATABASE || 'ugam_mes',
-      max: 10, // maximum number of clients in the pool
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
-    });
+    const dbUrl = process.env.DATABASE_URL;
+    const isCloud = Boolean(
+      dbUrl ||
+      process.env.RENDER ||
+      (process.env.DB_HOST && process.env.DB_HOST !== 'localhost' && process.env.DB_HOST !== 'postgres')
+    );
+
+    this.pool = dbUrl
+      ? new Pool({
+          connectionString: dbUrl,
+          ssl: { rejectUnauthorized: false },
+          max: 10,
+          idleTimeoutMillis: 30000,
+          connectionTimeoutMillis: 5000,
+        })
+      : new Pool({
+          host: process.env.DB_HOST || 'localhost',
+          port: parseInt(process.env.DB_PORT || '5432', 10),
+          user: process.env.DB_USERNAME || 'mes_admin',
+          password: process.env.DB_PASSWORD || 'SecretMESPassword123',
+          database: process.env.DB_DATABASE || 'ugam_mes',
+          ssl: isCloud ? { rejectUnauthorized: false } : false,
+          max: 10,
+          idleTimeoutMillis: 30000,
+          connectionTimeoutMillis: 5000,
+        });
 
     // Test connection
     this.pool.query('SELECT NOW()')
@@ -27,7 +45,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       })
       .catch((err) => {
         this.isConnected = false;
-        console.warn('PostgreSQL database connection failed. Falling back to local mock storage. Error:', err.message);
+        console.warn('PostgreSQL database connection failed. Error:', err.message);
       });
   }
 
@@ -38,13 +56,11 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       );
       if (check.rowCount === 0) {
         console.log('⚠️ Database is empty. Running auto-bootstrap from setup_ugam_mes_db.sql...');
-        const path = require('path');
-        const fs = require('fs');
         const candidatePaths = [
           path.join(process.cwd(), 'setup_ugam_mes_db.sql'),
+          path.join(__dirname, '..', 'setup_ugam_mes_db.sql'),
           path.join(__dirname, '..', '..', 'setup_ugam_mes_db.sql'),
-          path.join(__dirname, '..', '..', '..', 'setup_ugam_mes_db.sql'),
-          '/app/setup_ugam_mes_db.sql'
+          '/app/setup_ugam_mes_db.sql',
         ];
         let sqlContent = '';
         for (const p of candidatePaths) {

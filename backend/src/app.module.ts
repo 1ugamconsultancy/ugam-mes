@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { PlantsModule } from './plants/plants.module';
 import { WorkOrdersModule } from './work-orders/work-orders.module';
@@ -16,18 +17,36 @@ import { DatabaseModule } from './database/database.module';
 import { OpcModule } from './opc/opc.module';
 import { EnterpriseModule } from './enterprise/enterprise.module';
 
+const dbUrl = process.env.DATABASE_URL;
+const isCloud = Boolean(
+  dbUrl ||
+  process.env.RENDER ||
+  (process.env.DB_HOST && process.env.DB_HOST !== 'localhost' && process.env.DB_HOST !== 'postgres')
+);
+
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432', 10),
-      username: process.env.DB_USERNAME || 'mes_admin',
-      password: process.env.DB_PASSWORD || 'SecretMESPassword123',
-      database: process.env.DB_DATABASE || 'ugam_mes',
-      autoLoadEntities: true,
-      synchronize: false, // strictly disabled for GAMP 5 compliance
-    }),
+    TypeOrmModule.forRoot(
+      dbUrl
+        ? {
+            type: 'postgres',
+            url: dbUrl,
+            autoLoadEntities: true,
+            synchronize: false,
+            ssl: { rejectUnauthorized: false },
+          }
+        : {
+            type: 'postgres',
+            host: process.env.DB_HOST || 'localhost',
+            port: parseInt(process.env.DB_PORT || '5432', 10),
+            username: process.env.DB_USERNAME || 'mes_admin',
+            password: process.env.DB_PASSWORD || 'SecretMESPassword123',
+            database: process.env.DB_DATABASE || 'ugam_mes',
+            autoLoadEntities: true,
+            synchronize: false,
+            ssl: isCloud ? { rejectUnauthorized: false } : false,
+          },
+    ),
     AuthModule,
     EnterpriseModule,
     PlantsModule,
@@ -44,5 +63,6 @@ import { EnterpriseModule } from './enterprise/enterprise.module';
     DatabaseModule,
     OpcModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
