@@ -1,21 +1,28 @@
 // Dynamic API base URL configuration that adapts to environment variable, localhost, local network IP, or domain
 export const getApiBaseUrl = (): string => {
-  // If explicitly configured in Vercel or cloud environment
+  // 1. Explicit cloud environment variable
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
 
   if (typeof window !== 'undefined' && window.location) {
+    const hostname = window.location.hostname || 'localhost';
     const port = window.location.port;
-    // Vite local dev server
+
+    // 2. Vercel cloud deployment auto-detection: connect directly to live Render backend
+    if (hostname.endsWith('.vercel.app') || hostname.includes('vercel')) {
+      return 'https://ugam-backend-eguo.onrender.com';
+    }
+
+    // 3. Vite local dev server
     if (port === '5173' || port === '5174') {
-      const hostname = window.location.hostname || 'localhost';
       return `http://${hostname}:3001`;
     }
-    // Production behind Nginx reverse proxy
+
+    // 4. Production behind local Nginx reverse proxy
     return '/api';
   }
-  return '/api';
+  return 'https://ugam-backend-eguo.onrender.com';
 };
 
 export const API_BASE_URL = getApiBaseUrl();
@@ -26,9 +33,15 @@ export const getApiUrl = (endpoint: string): string => {
 
   // If the endpoint is already an uploads or static asset path
   if (cleanEndpoint.startsWith('/uploads/')) {
-    if (typeof window !== 'undefined' && window.location && (window.location.port === '5173' || window.location.port === '5174')) {
+    if (typeof window !== 'undefined' && window.location) {
       const hostname = window.location.hostname || 'localhost';
-      return `http://${hostname}:3001${cleanEndpoint}`;
+      const port = window.location.port;
+      if (hostname.endsWith('.vercel.app') || hostname.includes('vercel')) {
+        return `https://ugam-backend-eguo.onrender.com${cleanEndpoint}`;
+      }
+      if (port === '5173' || port === '5174') {
+        return `http://${hostname}:3001${cleanEndpoint}`;
+      }
     }
     return cleanEndpoint;
   }
@@ -41,13 +54,15 @@ export const getApiUrl = (endpoint: string): string => {
 
 export const getWsUrl = (): string => {
   if (typeof window !== 'undefined' && window.location) {
+    const hostname = window.location.hostname || 'localhost';
     const port = window.location.port;
+    if (hostname.endsWith('.vercel.app') || hostname.includes('vercel')) {
+      return 'https://ugam-backend-eguo.onrender.com';
+    }
     if (port === '5173' || port === '5174') {
-      const hostname = window.location.hostname || 'localhost';
       return `http://${hostname}:3001`;
     }
     return window.location.origin;
   }
-  return 'http://localhost:3001';
+  return 'https://ugam-backend-eguo.onrender.com';
 };
-
