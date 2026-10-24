@@ -39,6 +39,7 @@ import {
   Terminal,
   Radio,
   ArrowRight,
+  Menu,
   X,
   Building2,
   Palette,
@@ -163,10 +164,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     [getActiveGroupTitle(location.pathname)]: true
   }));
 
-  // When location changes, update openGroups so only the newly selected menu group is open
+  // Mobile / Tablet sidebar drawer state
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // When location changes, update openGroups so only the newly selected menu group is open & close mobile sidebar
   useEffect(() => {
     const activeTitle = getActiveGroupTitle(location.pathname);
     setOpenGroups({ [activeTitle]: true });
+    setIsMobileSidebarOpen(false);
   }, [location.pathname]);
 
   const toggleGroup = (title: string) => {
@@ -211,8 +216,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="h-screen max-h-screen flex flex-col font-sans overflow-hidden">
       {/* Top Navbar */}
-      <header className="h-14 bg-[#142A45] text-white border-b border-[#1F3A5C] px-4 flex items-center justify-between shrink-0 z-40 relative shadow-sm">
-        <div className="flex items-center gap-3">
+      <header className="h-14 bg-[#142A45] text-white border-b border-[#1F3A5C] px-3 sm:px-4 flex items-center justify-between shrink-0 z-40 relative shadow-sm">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          {/* Mobile / Tablet Hamburger Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+            className="p-1.5 lg:hidden bg-[#102237] border border-[#1F3A5C] rounded-lg text-slate-300 hover:text-white transition cursor-pointer shrink-0"
+            title="Toggle Navigation Menu"
+            aria-label="Toggle Navigation Menu"
+          >
+            {isMobileSidebarOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+
           <div className="bg-white px-2 py-0.5 rounded-lg border border-slate-200/20 shadow-sm flex items-center justify-center shrink-0">
             <img
               src={logoImg}
@@ -220,9 +236,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               className="h-7 w-auto object-contain block"
             />
           </div>
-          <div className="flex flex-col justify-center">
-            <span className="text-sm font-extrabold tracking-tight block leading-tight text-white">UGAM NEXT GEN MES</span>
-            <span className="text-xs text-[#F5A623] font-bold tracking-wider block mt-0.5 leading-none">Enterprise Manufacturing Execution System</span>
+          <div className="flex flex-col justify-center min-w-0">
+            <span className="text-sm font-extrabold tracking-tight block leading-tight text-white whitespace-nowrap">UGAM NEXT GEN MES</span>
+            <span className="text-[10px] sm:text-xs text-[#F5A623] font-bold tracking-normal sm:tracking-wider block mt-0.5 leading-none truncate max-w-[200px] sm:max-w-xs md:max-w-md lg:max-w-none">
+              Next Generation MES for connected, traceable manufacturing
+            </span>
           </div>
         </div>
 
@@ -348,7 +366,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           {/* Plant & Tenant Active Chip */}
           {user && (
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-black/20 border border-white/10 text-xs">
+            <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-black/20 border border-white/10 text-xs">
               {user.role === 'SUPER_ADMIN' ? (
                 <div className="flex items-center gap-1.5 text-amber-400 font-bold">
                   <Sparkles size={14} />
@@ -387,9 +405,41 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Main Content Area */}
-      <div className="flex flex-1 min-h-0 overflow-hidden bg-[#F4F5F6] dark:bg-[#111111] transition-colors">
-        {/* Left Sidebar */}
-        <aside className="w-60 h-full max-h-full bg-white dark:bg-[#142A45] border-r border-[#E3E5E8] dark:border-[#1F3A5C] flex flex-col p-2.5 shrink-0 transition-colors select-none overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-hidden bg-[#F4F5F6] dark:bg-[#111111] transition-colors relative">
+        {/* Mobile / Tablet Backdrop */}
+        {isMobileSidebarOpen && (
+          <div
+            onClick={() => setIsMobileSidebarOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden animate-fadeIn"
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Left Sidebar (Desktop static, Tablet/Mobile off-canvas slide drawer) */}
+        <aside
+          className={`
+            fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
+            w-64 lg:w-60 h-full max-h-full bg-white dark:bg-[#142A45]
+            border-r border-[#E3E5E8] dark:border-[#1F3A5C]
+            flex flex-col p-2.5 shrink-0 transition-transform duration-200 ease-in-out select-none overflow-hidden shadow-2xl lg:shadow-none
+            ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          `}
+        >
+          {/* Mobile Sidebar Close Header */}
+          <div className="lg:hidden flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-[#1F3A5C]">
+            <span className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-white">
+              Navigation Menu
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsMobileSidebarOpen(false)}
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              title="Close menu"
+            >
+              <X size={16} />
+            </button>
+          </div>
+
           <nav className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-1.5 sidebar-scrollbar">
             {navGroups.map((group) => {
               const isOpen = openGroups[group.title] ?? false;
@@ -441,6 +491,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                             key={item.path}
                             to={item.path}
                             title={item.label}
+                            onClick={() => setIsMobileSidebarOpen(false)}
                             className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-bold transition group/item relative ${
                               isActive
                                 ? 'bg-[#174A7C] text-white shadow-sm shadow-[#174A7C]/40'

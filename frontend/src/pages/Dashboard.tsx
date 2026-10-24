@@ -289,7 +289,7 @@ export default function Dashboard() {
       {/* Main Operations Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 items-stretch">
         {/* Active Running Batch Widget */}
-        <div className="bg-white dark:bg-slate-800 border-2 border-[#174A7C]/25 dark:border-[#174A7C]/35 shadow-md rounded-xl p-3 lg:col-span-2 flex flex-col justify-between space-y-2 h-[280px] max-h-[280px]">
+        <div className="bg-white dark:bg-slate-800 border-2 border-[#174A7C]/25 dark:border-[#174A7C]/35 shadow-md rounded-xl p-3.5 lg:col-span-2 flex flex-col justify-between space-y-2.5 min-h-[350px] h-full">
           {/* Top Badges Bar */}
           <div className="flex flex-wrap items-center justify-between gap-1.5 border-b border-slate-100 dark:border-slate-700/60 pb-1.5">
             <div className="flex flex-wrap items-center gap-1.5">
@@ -407,13 +407,13 @@ export default function Dashboard() {
           </div>
 
           {/* 4 Bottom Metric Summary Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 mt-auto shrink-0">
             {/* GOOD OUTPUT */}
-            <div className="py-1.5 px-2 bg-white dark:bg-[#142A45] border-2 border-[#174A7C]/25 dark:border-[#174A7C]/35 rounded-lg shadow-sm text-center">
+            <div className="py-2 px-2.5 bg-slate-50/80 dark:bg-[#102237] border-2 border-[#174A7C]/25 dark:border-[#174A7C]/35 rounded-xl shadow-sm text-center flex flex-col justify-between">
               <span className="text-[9px] font-bold text-slate-400 dark:text-slate-400 tracking-wider uppercase block mb-0.5">
                 GOOD OUTPUT
               </span>
-              <span className="text-lg sm:text-xl font-black text-emerald-600 dark:text-emerald-400 block leading-tight mb-0.5">
+              <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 block leading-tight mb-0.5">
                 {currentGood.toLocaleString()}
               </span>
               <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">
@@ -422,11 +422,11 @@ export default function Dashboard() {
             </div>
 
             {/* SCRAP */}
-            <div className="py-1.5 px-2 bg-white dark:bg-[#142A45] border-2 border-[#174A7C]/25 dark:border-[#174A7C]/35 rounded-lg shadow-sm text-center">
+            <div className="py-2 px-2.5 bg-slate-50/80 dark:bg-[#102237] border-2 border-[#174A7C]/25 dark:border-[#174A7C]/35 rounded-xl shadow-sm text-center flex flex-col justify-between">
               <span className="text-[9px] font-bold text-slate-400 dark:text-slate-400 tracking-wider uppercase block mb-0.5">
                 SCRAP
               </span>
-              <span className="text-lg sm:text-xl font-black text-rose-600 dark:text-rose-400 block leading-tight mb-0.5">
+              <span className="text-xl sm:text-2xl font-black text-rose-600 dark:text-rose-400 block leading-tight mb-0.5">
                 {currentScrap.toLocaleString()}
               </span>
               <span className="text-[9px] font-bold text-rose-600 dark:text-rose-400 tracking-wider">
@@ -435,11 +435,11 @@ export default function Dashboard() {
             </div>
 
             {/* TARGET DELTA */}
-            <div className="py-1.5 px-2 bg-white dark:bg-[#142A45] border-2 border-[#174A7C]/25 dark:border-[#174A7C]/35 rounded-lg shadow-sm text-center">
+            <div className="py-2 px-2.5 bg-slate-50/80 dark:bg-[#102237] border-2 border-[#174A7C]/25 dark:border-[#174A7C]/35 rounded-xl shadow-sm text-center flex flex-col justify-between">
               <span className="text-[9px] font-bold text-slate-400 dark:text-slate-400 tracking-wider uppercase block mb-0.5">
                 TARGET DELTA
               </span>
-              <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-white block leading-tight mb-0.5">
+              <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white block leading-tight mb-0.5">
                 {remainingQty.toLocaleString()}
               </span>
               <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 tracking-wider">
@@ -448,7 +448,7 @@ export default function Dashboard() {
             </div>
 
             {/* BATCH STATUS */}
-            <div className="py-1.5 px-2 bg-white dark:bg-[#142A45] border-2 border-[#174A7C]/25 dark:border-[#174A7C]/35 rounded-lg shadow-sm text-center">
+            <div className="py-2 px-2.5 bg-slate-50/80 dark:bg-[#102237] border-2 border-[#174A7C]/25 dark:border-[#174A7C]/35 rounded-xl shadow-sm text-center flex flex-col justify-between">
               <span className="text-[9px] font-bold text-slate-400 dark:text-slate-400 tracking-wider uppercase block mb-0.5">
                 BATCH STATUS
               </span>
@@ -463,19 +463,19 @@ export default function Dashboard() {
         </div>
 
         {/* Machine OEE comparison */}
-        <div className="bg-white dark:bg-slate-800 border-2 border-[#174A7C]/25 dark:border-[#174A7C]/35 shadow-md rounded-xl p-3 flex flex-col justify-between h-[280px] max-h-[280px]">
-          <div className="flex items-center justify-between mb-2 flex-shrink-0">
+        <div className="bg-white dark:bg-slate-800 border-2 border-[#174A7C]/25 dark:border-[#174A7C]/35 shadow-md rounded-xl p-3.5 flex flex-col justify-between min-h-[350px] h-full">
+          <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2 pb-1.5 border-b border-slate-100 dark:border-slate-700/60 shrink-0">
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">Individual Equipment State</h3>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 font-mono font-bold">
+              <h3 className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm whitespace-nowrap">Individual Equipment State</h3>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 font-mono font-bold shrink-0">
                 {activeMachines.length} Assets
               </span>
             </div>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shrink-0 uppercase tracking-wider">
               GMP QUALIFIED
             </span>
           </div>
-          <div className="space-y-1.5 overflow-y-auto pr-1.5 flex-1 min-h-0 mes-scrollbar">
+          <div className="space-y-1.5 overflow-y-auto pr-1.5 flex-1 min-h-[200px] mes-scrollbar">
             {activeMachines.map((machine: any) => {
               const status = liveMachineStatuses[machine.id] || machine.status;
               const oee = liveMachineOEE[machine.id] !== undefined ? liveMachineOEE[machine.id] : getDefaultOee(status, machine.code);

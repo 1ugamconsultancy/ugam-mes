@@ -71,7 +71,7 @@ export default function Login() {
             UGAM NEXT GEN MES
           </h1>
           <p className="text-xs text-[#F5A623] font-bold uppercase tracking-wider mt-1">
-            Multi-Tenant Enterprise Manufacturing Execution System
+            Next Generation MES for connected, traceable manufacturing
           </p>
         </div>
 
