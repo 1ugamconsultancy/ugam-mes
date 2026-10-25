@@ -73,7 +73,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const isSuperAdmin = user?.role === 'SUPER_ADMIN';
 
-  const navGroups = isSuperAdmin
+  interface NavItem {
+    path: string;
+    label: string;
+    icon: React.ReactElement<any>;
+  }
+
+  interface NavGroup {
+    title: string;
+    directPath?: string;
+    icon?: React.ReactElement<any>;
+    items?: NavItem[];
+  }
+
+  const navGroups: NavGroup[] = isSuperAdmin
     ? [
         {
           title: 'Enterprise Governance',
@@ -140,21 +153,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         }] : []),
         {
           title: 'Support',
-          items: [
-            { path: '/help', label: 'Help Center', icon: <HelpCircle size={18} /> },
-          ]
+          directPath: '/help',
+          icon: <HelpCircle size={15} />
         }
       ];
 
   // Helper to determine the group containing current active route
   const getActiveGroupTitle = (pathname: string) => {
     const matched = navGroups.find(g =>
-      g.items.some(item =>
-        pathname === item.path ||
-        (item.path.startsWith('/trace') && pathname.startsWith(item.path)) ||
-        (item.path.startsWith('/super-admin') && pathname.startsWith(item.path)) ||
-        (item.path.startsWith('/admin') && (pathname.startsWith(item.path) || pathname === '/admin'))
-      )
+      g.directPath
+        ? pathname === g.directPath
+        : g.items?.some(item =>
+            pathname === item.path ||
+            (item.path.startsWith('/trace') && pathname.startsWith(item.path)) ||
+            (item.path.startsWith('/super-admin') && pathname.startsWith(item.path)) ||
+            (item.path.startsWith('/admin') && (pathname.startsWith(item.path) || pathname === '/admin'))
+          )
     );
     return matched ? matched.title : (isSuperAdmin ? 'Enterprise Governance' : 'Operations');
   };
@@ -442,8 +456,40 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           <nav className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-1.5 sidebar-scrollbar">
             {navGroups.map((group) => {
+              // Direct Top-Level Links (e.g. Support directly opens /help)
+              if (group.directPath) {
+                const isActive = location.pathname === group.directPath;
+                return (
+                  <Link
+                    key={group.title}
+                    to={group.directPath}
+                    title={group.title}
+                    onClick={() => setIsMobileSidebarOpen(false)}
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg border text-xs font-bold uppercase tracking-wider transition group cursor-pointer ${
+                      isActive
+                        ? 'bg-[#174A7C] text-white border-[#174A7C] shadow-sm shadow-[#174A7C]/40'
+                        : 'border-slate-200/70 dark:border-[#1F3A5C]/80 bg-slate-50/70 dark:bg-[#102237]/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-[#142A45]'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2 truncate">
+                      {group.icon ? React.cloneElement(group.icon, { size: 15 }) : <HelpCircle size={15} />}
+                      <span className={isActive ? 'text-white font-extrabold' : ''}>
+                        {group.title}
+                      </span>
+                    </span>
+                    <ArrowRight
+                      size={13}
+                      className={`text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5 shrink-0 ${
+                        isActive ? 'text-white' : ''
+                      }`}
+                    />
+                  </Link>
+                );
+              }
+
+              // Collapsible Group Accordion
               const isOpen = openGroups[group.title] ?? false;
-              const hasActiveChild = group.items.some(
+              const hasActiveChild = (group.items || []).some(
                 (item) =>
                   location.pathname === item.path ||
                   (item.path.startsWith('/trace') && location.pathname.startsWith(item.path))
@@ -480,7 +526,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   {/* Accordion Sub-items */}
                   {isOpen && (
                     <div className="space-y-0.5 px-1.5 pb-1.5 pt-0.5 transition-all">
-                      {group.items.map((item) => {
+                      {(group.items || []).map((item) => {
                         const isActive =
                           location.pathname === item.path ||
                           (item.path.startsWith('/trace/') && location.pathname.startsWith(item.path)) ||
