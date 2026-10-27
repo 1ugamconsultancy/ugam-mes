@@ -298,16 +298,16 @@ export default function WorkOrders() {
           onClick={() => setStatusFilter('ALL')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             statusFilter === 'ALL'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <ClipboardList size={15} className={statusFilter === 'ALL' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <ClipboardList size={15} className={statusFilter === 'ALL' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>All Batches</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             statusFilter === 'ALL'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {workOrders.length}
           </span>
@@ -318,15 +318,15 @@ export default function WorkOrders() {
           onClick={() => setStatusFilter('PLANNED')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             statusFilter === 'PLANNED'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
           <span>Planned</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             statusFilter === 'PLANNED'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {workOrders.filter(w => w.status === 'PLANNED').length}
           </span>
@@ -337,15 +337,15 @@ export default function WorkOrders() {
           onClick={() => setStatusFilter('RELEASED')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             statusFilter === 'RELEASED'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
           <span>Released</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             statusFilter === 'RELEASED'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {workOrders.filter(w => w.status === 'RELEASED').length}
           </span>
@@ -356,15 +356,15 @@ export default function WorkOrders() {
           onClick={() => setStatusFilter('IN_PROGRESS')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             statusFilter === 'IN_PROGRESS'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
           <span>In Progress</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             statusFilter === 'IN_PROGRESS'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {workOrders.filter(w => w.status === 'IN_PROGRESS').length}
           </span>
@@ -375,15 +375,15 @@ export default function WorkOrders() {
           onClick={() => setStatusFilter('COMPLETED')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             statusFilter === 'COMPLETED'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
           <span>Completed</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             statusFilter === 'COMPLETED'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {workOrders.filter(w => w.status === 'COMPLETED').length}
           </span>
@@ -394,15 +394,15 @@ export default function WorkOrders() {
           onClick={() => setStatusFilter('CLOSED')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             statusFilter === 'CLOSED'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
           <span>Closed</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             statusFilter === 'CLOSED'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {workOrders.filter(w => w.status === 'CLOSED').length}
           </span>

@@ -429,16 +429,16 @@ export default function Compliance() {
           onClick={() => setActiveTab('audit')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'audit'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <History size={15} className={activeTab === 'audit' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <History size={15} className={activeTab === 'audit' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>Immutable Audit Logs</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             activeTab === 'audit'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {auditLogs.length}
           </span>
@@ -449,16 +449,16 @@ export default function Compliance() {
           onClick={() => setActiveTab('deviations')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'deviations'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <AlertOctagon size={15} className={activeTab === 'deviations' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <AlertOctagon size={15} className={activeTab === 'deviations' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>Deviation Tracker</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             activeTab === 'deviations'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {deviations.length}
           </span>
@@ -469,16 +469,16 @@ export default function Compliance() {
           onClick={() => setActiveTab('capa')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'capa'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <ShieldCheck size={15} className={activeTab === 'capa' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <ShieldCheck size={15} className={activeTab === 'capa' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>CAPAs</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             activeTab === 'capa'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {capas.length}
           </span>
@@ -489,16 +489,16 @@ export default function Compliance() {
           onClick={() => setActiveTab('change')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'change'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <BookmarkCheck size={15} className={activeTab === 'change' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <BookmarkCheck size={15} className={activeTab === 'change' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>Change Controls</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             activeTab === 'change'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {changes.length}
           </span>
@@ -509,16 +509,16 @@ export default function Compliance() {
           onClick={() => setActiveTab('sop')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'sop'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <FileText size={15} className={activeTab === 'sop' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <FileText size={15} className={activeTab === 'sop' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>SOP Documents</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             activeTab === 'sop'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {documents.length}
           </span>

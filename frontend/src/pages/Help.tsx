@@ -620,9 +620,7 @@ export default function Help() {
                 type="button"
                 onClick={() => navigate(`/help/${sec.id}`)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  isSelected
-                    ? 'bg-[#174A7C] text-white shadow-sm'
-                    : 'bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white'
+                  isSelected ? 'bg-[#174A7C] text-white shadow-md border border-[#174A7C] ring-2 ring-[#174A7C]/25' : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] hover:text-[#174A7C] hover:shadow-sm'
                 }`}
               >
                 <span>{sec.title.split(' ')[0]}</span>

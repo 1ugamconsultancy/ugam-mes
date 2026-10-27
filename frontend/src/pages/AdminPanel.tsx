@@ -1512,11 +1512,11 @@ export default function AdminPanel() {
           onClick={() => handleTabChange('material')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'material'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <Boxes size={15} className={activeTab === 'material' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <Boxes size={15} className={activeTab === 'material' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>Material Master</span>
         </button>
 
@@ -1525,16 +1525,16 @@ export default function AdminPanel() {
           onClick={() => handleTabChange('equipment')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'equipment'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <Cpu size={15} className={activeTab === 'equipment' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <Cpu size={15} className={activeTab === 'equipment' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>Equipment Assets</span>
           <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
             activeTab === 'equipment'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {equipmentList.length}
           </span>
@@ -1545,11 +1545,11 @@ export default function AdminPanel() {
           onClick={() => handleTabChange('types-uom')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'types-uom'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <Sliders size={15} className={activeTab === 'types-uom' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <Sliders size={15} className={activeTab === 'types-uom' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>Material Types & UOM</span>
         </button>
 
@@ -1558,16 +1558,16 @@ export default function AdminPanel() {
           onClick={() => handleTabChange('users')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'users'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <Users size={15} className={activeTab === 'users' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <Users size={15} className={activeTab === 'users' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>Users & Roles</span>
           <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
             activeTab === 'users'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {usersList.length}
           </span>
@@ -1578,11 +1578,11 @@ export default function AdminPanel() {
           onClick={() => handleTabChange('standards')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'standards'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <ShieldCheck size={15} className={activeTab === 'standards' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <ShieldCheck size={15} className={activeTab === 'standards' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>Standards & Serialization</span>
         </button>
 
@@ -1591,16 +1591,16 @@ export default function AdminPanel() {
           onClick={() => handleTabChange('opc-sync')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'opc-sync'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <Radio size={15} className={activeTab === 'opc-sync' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <Radio size={15} className={activeTab === 'opc-sync' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>OPC Kepware Sync</span>
           <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
             activeTab === 'opc-sync'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {opcTags.length}
           </span>
@@ -1611,11 +1611,11 @@ export default function AdminPanel() {
           onClick={() => handleTabChange('api-docs')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'api-docs'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <Terminal size={15} className={activeTab === 'api-docs' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <Terminal size={15} className={activeTab === 'api-docs' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>API Integration Guide</span>
         </button>
       </div>

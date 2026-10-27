@@ -363,16 +363,16 @@ export default function Equipment() {
           onClick={() => setActiveTab('dashboard')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'dashboard'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <Cpu size={15} className={activeTab === 'dashboard' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <Cpu size={15} className={activeTab === 'dashboard' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>Asset Dashboard</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             activeTab === 'dashboard'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {equipments.length}
           </span>
@@ -383,16 +383,16 @@ export default function Equipment() {
           onClick={() => setActiveTab('master')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'master'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <FileCheck size={15} className={activeTab === 'master' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <FileCheck size={15} className={activeTab === 'master' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>Machine Master Catalog</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             activeTab === 'master'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {masterList.length}
           </span>
@@ -403,16 +403,16 @@ export default function Equipment() {
           onClick={() => setActiveTab('calibrations')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'calibrations'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <Calendar size={15} className={activeTab === 'calibrations' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <Calendar size={15} className={activeTab === 'calibrations' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>Calibration Certificates</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             activeTab === 'calibrations'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {calibrations.length}
           </span>
@@ -423,16 +423,16 @@ export default function Equipment() {
           onClick={() => setActiveTab('qualifications')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'qualifications'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <ShieldCheck size={15} className={activeTab === 'qualifications' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <ShieldCheck size={15} className={activeTab === 'qualifications' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>Validation Records (IQ/OQ/PQ)</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             activeTab === 'qualifications'
-              ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-              : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+              ? 'bg-white/20 text-white font-extrabold'
+              : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
           }`}>
             {qualifications.length}
           </span>
@@ -443,11 +443,11 @@ export default function Equipment() {
           onClick={() => setActiveTab('checklist')}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
             activeTab === 'checklist'
-              ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+              ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]'
+              : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
           }`}
         >
-          <Wrench size={15} className={activeTab === 'checklist' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+          <Wrench size={15} className={activeTab === 'checklist' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
           <span>GMP Calibration Checklist</span>
         </button>
       </div>

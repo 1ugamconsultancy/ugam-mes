@@ -649,9 +649,7 @@ export default function SuperAdminSettings() {
             <button
               onClick={() => setOrgFilter('ACTIVE')}
               className={`flex-1 py-1.5 px-2 rounded-lg transition-all duration-150 text-center cursor-pointer active:scale-95 flex items-center justify-center gap-1.5 ${
-                orgFilter === 'ACTIVE'
-                  ? 'bg-white dark:bg-[#174A7C] text-emerald-600 dark:text-emerald-400 font-bold shadow-sm ring-1 ring-slate-200 dark:ring-emerald-500/30 border border-slate-200/80 dark:border-transparent'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-[#142A45]'
+                orgFilter === 'ACTIVE' ? 'bg-[#174A7C] text-white font-bold shadow-sm ring-2 ring-[#174A7C]/25 dark:ring-emerald-500/30 border border-[#174A7C]' : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:border-[#174A7C] hover:text-[#174A7C]'
               }`}
             >
               <span>Active</span>
@@ -666,9 +664,7 @@ export default function SuperAdminSettings() {
             <button
               onClick={() => setOrgFilter('INACTIVE')}
               className={`flex-1 py-1.5 px-2 rounded-lg transition-all duration-150 text-center cursor-pointer active:scale-95 flex items-center justify-center gap-1.5 ${
-                orgFilter === 'INACTIVE'
-                  ? 'bg-white dark:bg-[#174A7C] text-amber-600 dark:text-amber-400 font-bold shadow-sm ring-1 ring-slate-200 dark:ring-amber-500/30 border border-slate-200/80 dark:border-transparent'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-[#142A45]'
+                orgFilter === 'INACTIVE' ? 'bg-[#174A7C] text-white font-bold shadow-sm ring-2 ring-[#174A7C]/25 dark:ring-amber-500/30 border border-[#174A7C]' : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:border-[#174A7C] hover:text-[#174A7C]'
               }`}
             >
               <span>Inactive</span>
@@ -683,9 +679,7 @@ export default function SuperAdminSettings() {
             <button
               onClick={() => setOrgFilter('ALL')}
               className={`flex-1 py-1.5 px-2 rounded-lg transition-all duration-150 text-center cursor-pointer active:scale-95 flex items-center justify-center gap-1.5 ${
-                orgFilter === 'ALL'
-                  ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-[#F5A623] font-bold shadow-sm ring-1 ring-slate-200 dark:ring-[#F5A623]/30 border border-slate-200/80 dark:border-transparent'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-[#142A45]'
+                orgFilter === 'ALL' ? 'bg-[#174A7C] text-white font-bold shadow-sm ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/30 border border-[#174A7C]' : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:border-[#174A7C] hover:text-[#174A7C]'
               }`}
             >
               <span>All</span>

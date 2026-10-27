@@ -1165,17 +1165,13 @@ export default function Recipes() {
             <button
               onClick={() => setActiveTab('recipes')}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
-                activeTab === 'recipes'
-                  ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+                activeTab === 'recipes' ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]' : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
               }`}
             >
-              <FileText size={14} className={activeTab === 'recipes' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+              <FileText size={14} className={activeTab === 'recipes' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
               <span>Master Recipes</span>
               <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                activeTab === 'recipes'
-                  ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-                  : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+                activeTab === 'recipes' ? 'bg-white/20 text-white font-extrabold' : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
               }`}>
                 {recipes.length}
               </span>
@@ -1183,17 +1179,13 @@ export default function Recipes() {
             <button
               onClick={() => setActiveTab('bom')}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
-                activeTab === 'bom'
-                  ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-white shadow-md ring-1 ring-slate-200 dark:ring-[#F5A623]/40 border border-slate-200/80 dark:border-transparent'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-[#142A45] hover:shadow-sm border border-transparent'
+                activeTab === 'bom' ? 'bg-[#174A7C] text-white shadow-md ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/40 border border-[#174A7C]' : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:bg-slate-50 dark:hover:bg-[#1A365D] hover:border-[#174A7C] dark:hover:border-blue-400 hover:text-[#174A7C] dark:hover:text-white hover:shadow-sm'
               }`}
             >
-              <Layers size={14} className={activeTab === 'bom' ? 'text-[#174A7C] dark:text-[#F5A623]' : 'text-slate-400'} />
+              <Layers size={14} className={activeTab === 'bom' ? 'text-white dark:text-[#F5A623]' : 'text-slate-500 dark:text-slate-400'} />
               <span>Engineering BOMs</span>
               <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                activeTab === 'bom'
-                  ? 'bg-blue-500/15 text-blue-600 dark:bg-white/20 dark:text-white'
-                  : 'bg-slate-200 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
+                activeTab === 'bom' ? 'bg-white/20 text-white font-extrabold' : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
               }`}>
                 {groupedBoms.length}
               </span>
@@ -1252,13 +1244,11 @@ export default function Recipes() {
               <button
                 onClick={() => setRecipeFilter('ACTIVE')}
                 className={`flex-1 py-1.5 px-2 rounded-lg transition-all duration-150 text-center cursor-pointer active:scale-95 flex items-center justify-center gap-1.5 ${
-                  recipeFilter === 'ACTIVE'
-                    ? 'bg-white dark:bg-[#174A7C] text-emerald-600 dark:text-emerald-400 font-bold shadow-sm ring-1 ring-slate-200 dark:ring-emerald-500/30 border border-slate-200/80 dark:border-transparent'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-[#142A45]'
+                  recipeFilter === 'ACTIVE' ? 'bg-[#174A7C] text-white font-bold shadow-sm ring-2 ring-[#174A7C]/25 dark:ring-emerald-500/30 border border-[#174A7C]' : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:border-[#174A7C] hover:text-[#174A7C]'
                 }`}
               >
                 <span>Active</span>
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                   recipeFilter === 'ACTIVE'
                     ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
                     : 'bg-slate-200/70 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
@@ -1269,13 +1259,11 @@ export default function Recipes() {
               <button
                 onClick={() => setRecipeFilter('ARCHIVED')}
                 className={`flex-1 py-1.5 px-2 rounded-lg transition-all duration-150 text-center cursor-pointer active:scale-95 flex items-center justify-center gap-1.5 ${
-                  recipeFilter === 'ARCHIVED'
-                    ? 'bg-white dark:bg-[#174A7C] text-amber-600 dark:text-amber-400 font-bold shadow-sm ring-1 ring-slate-200 dark:ring-amber-500/30 border border-slate-200/80 dark:border-transparent'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-[#142A45]'
+                  recipeFilter === 'ARCHIVED' ? 'bg-[#174A7C] text-white font-bold shadow-sm ring-2 ring-[#174A7C]/25 dark:ring-amber-500/30 border border-[#174A7C]' : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:border-[#174A7C] hover:text-[#174A7C]'
                 }`}
               >
                 <span>Archived</span>
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                   recipeFilter === 'ARCHIVED'
                     ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'
                     : 'bg-slate-200/70 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
@@ -1286,13 +1274,11 @@ export default function Recipes() {
               <button
                 onClick={() => setRecipeFilter('ALL')}
                 className={`flex-1 py-1.5 px-2 rounded-lg transition-all duration-150 text-center cursor-pointer active:scale-95 flex items-center justify-center gap-1.5 ${
-                  recipeFilter === 'ALL'
-                    ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-[#F5A623] font-bold shadow-sm ring-1 ring-slate-200 dark:ring-[#F5A623]/30 border border-slate-200/80 dark:border-transparent'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-[#142A45]'
+                  recipeFilter === 'ALL' ? 'bg-[#174A7C] text-white font-bold shadow-sm ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/30 border border-[#174A7C]' : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:border-[#174A7C] hover:text-[#174A7C]'
                 }`}
               >
                 <span>All</span>
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                   recipeFilter === 'ALL'
                     ? 'bg-blue-100 dark:bg-[#102237] text-blue-700 dark:text-[#F5A623]'
                     : 'bg-slate-200/70 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
@@ -1344,7 +1330,7 @@ export default function Recipes() {
                           <span className="font-mono font-bold text-blue-600 dark:text-blue-400 text-xs">
                             {rec.recipeCode}
                           </span>
-                          <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider ${getStatusBadge(rec.status)}`}>
+                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${getStatusBadge(rec.status)}`}>
                             {rec.status}
                           </span>
                         </div>
@@ -1462,7 +1448,7 @@ export default function Recipes() {
                       <div className="h-6 w-px bg-slate-200 dark:bg-[#1F3A5C]" />
                       <div className="text-left md:text-right">
                         <span className="text-[8px] block font-bold text-slate-400 uppercase tracking-wider">Status</span>
-                        <span className={`inline-block px-1.5 py-0.2 rounded text-[8px] font-bold uppercase tracking-wider ${getStatusBadge(selectedRecipe.status)}`}>
+                        <span className={`inline-block px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${getStatusBadge(selectedRecipe.status)}`}>
                           {selectedRecipe.status}
                         </span>
                       </div>
@@ -1715,28 +1701,28 @@ export default function Recipes() {
                                       {p.operation_name || p.name || `Operation ${p.step}`}
                                     </h4>
                                     {p.operation_code && (
-                                      <span className="font-mono text-[9px] text-slate-400 font-semibold uppercase bg-slate-100 dark:bg-[#142A45] px-1.5 py-0.2 rounded border dark:border-[#1F3A5C]">
+                                      <span className="font-mono text-[9px] text-slate-400 font-semibold uppercase bg-slate-100 dark:bg-[#142A45] px-2 py-0.5 rounded border dark:border-[#1F3A5C]">
                                         {p.operation_code}
                                       </span>
                                     )}
                                     {p.work_center && (
-                                      <span className="text-[9px] font-mono text-blue-400 bg-blue-500/10 px-1.5 py-0.2 rounded border border-blue-500/20">
+                                      <span className="text-[9px] font-mono text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
                                         🏢 {p.work_center}
                                       </span>
                                     )}
                                     {p.machine_code && (
-                                      <span className="text-[9px] font-mono text-amber-400 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/20">
+                                      <span className="text-[9px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
                                         🔑 {p.machine_code}
                                       </span>
                                     )}
                                     {p.step_type === 'QR_VERIFICATION' && (
-                                      <span className="text-[9px] font-mono font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.2 rounded flex items-center gap-1">
+                                      <span className="text-[9px] font-mono font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded flex items-center gap-1">
                                         <QrCode size={11} />
                                         <span>2D QR VERIFY {p.target_component_sku ? `(${p.target_component_sku})` : ''}</span>
                                       </span>
                                     )}
                                     {p.step_type === 'WEIGH_DISPENSE' && (
-                                      <span className="text-[9px] font-mono font-bold text-blue-400 bg-blue-500/10 border border-blue-500/30 px-1.5 py-0.2 rounded flex items-center gap-1">
+                                      <span className="text-[9px] font-mono font-bold text-blue-400 bg-blue-500/10 border border-blue-500/30 px-2 py-0.5 rounded flex items-center gap-1">
                                         <QrCode size={11} />
                                         <span>WEIGH & DISPENSE QR</span>
                                       </span>
@@ -1815,7 +1801,7 @@ export default function Recipes() {
                                       <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
                                         Rev {rev.version}
                                       </span>
-                                      <span className={`px-1.5 py-0.2 rounded text-[8px] font-bold uppercase ${getStatusBadge(rev.status)}`}>
+                                      <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase ${getStatusBadge(rev.status)}`}>
                                         {rev.status}
                                       </span>
                                     </div>
@@ -1867,13 +1853,11 @@ export default function Recipes() {
               <button
                 onClick={() => setBomFilter('RELEASED')}
                 className={`flex-1 py-1.5 px-2 rounded-lg transition-all duration-150 text-center cursor-pointer active:scale-95 flex items-center justify-center gap-1.5 ${
-                  bomFilter === 'RELEASED'
-                    ? 'bg-white dark:bg-[#174A7C] text-emerald-600 dark:text-emerald-400 font-bold shadow-sm ring-1 ring-slate-200 dark:ring-emerald-500/30 border border-slate-200/80 dark:border-transparent'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-[#142A45]'
+                  bomFilter === 'RELEASED' ? 'bg-[#174A7C] text-white font-bold shadow-sm ring-2 ring-[#174A7C]/25 dark:ring-emerald-500/30 border border-[#174A7C]' : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:border-[#174A7C] hover:text-[#174A7C]'
                 }`}
               >
                 <span>Active</span>
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                   bomFilter === 'RELEASED'
                     ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
                     : 'bg-slate-200/70 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
@@ -1884,13 +1868,11 @@ export default function Recipes() {
               <button
                 onClick={() => setBomFilter('ARCHIVED')}
                 className={`flex-1 py-1.5 px-2 rounded-lg transition-all duration-150 text-center cursor-pointer active:scale-95 flex items-center justify-center gap-1.5 ${
-                  bomFilter === 'ARCHIVED'
-                    ? 'bg-white dark:bg-[#174A7C] text-amber-600 dark:text-amber-400 font-bold shadow-sm ring-1 ring-slate-200 dark:ring-amber-500/30 border border-slate-200/80 dark:border-transparent'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-[#142A45]'
+                  bomFilter === 'ARCHIVED' ? 'bg-[#174A7C] text-white font-bold shadow-sm ring-2 ring-[#174A7C]/25 dark:ring-amber-500/30 border border-[#174A7C]' : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:border-[#174A7C] hover:text-[#174A7C]'
                 }`}
               >
                 <span>Archived</span>
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                   bomFilter === 'ARCHIVED'
                     ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'
                     : 'bg-slate-200/70 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
@@ -1901,13 +1883,11 @@ export default function Recipes() {
               <button
                 onClick={() => setBomFilter('ALL')}
                 className={`flex-1 py-1.5 px-2 rounded-lg transition-all duration-150 text-center cursor-pointer active:scale-95 flex items-center justify-center gap-1.5 ${
-                  bomFilter === 'ALL'
-                    ? 'bg-white dark:bg-[#174A7C] text-[#174A7C] dark:text-[#F5A623] font-bold shadow-sm ring-1 ring-slate-200 dark:ring-[#F5A623]/30 border border-slate-200/80 dark:border-transparent'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-[#142A45]'
+                  bomFilter === 'ALL' ? 'bg-[#174A7C] text-white font-bold shadow-sm ring-2 ring-[#174A7C]/25 dark:ring-[#F5A623]/30 border border-[#174A7C]' : 'bg-white dark:bg-[#142A45] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-[#1F3A5C] shadow-xs hover:border-[#174A7C] hover:text-[#174A7C]'
                 }`}
               >
                 <span>All</span>
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                   bomFilter === 'ALL'
                     ? 'bg-blue-100 dark:bg-[#102237] text-blue-700 dark:text-[#F5A623]'
                     : 'bg-slate-200/70 dark:bg-[#142A45] text-slate-500 dark:text-slate-400'
@@ -1972,7 +1952,7 @@ export default function Recipes() {
                           <span className="font-mono font-bold text-blue-600 dark:text-blue-400 text-xs">
                             {group.header.bom_id}
                           </span>
-                          <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider ${getStatusBadge(group.header.status)}`}>
+                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${getStatusBadge(group.header.status)}`}>
                             {group.header.status}
                           </span>
                         </div>
@@ -2077,7 +2057,7 @@ export default function Recipes() {
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                         Parent Assembly Part: <strong className="text-slate-800 dark:text-slate-200">{selectedBomGroup.header.parent_material}</strong>
                         {selectedBomGroup.header.parent_type && (
-                          <span className={`ml-2 px-1.5 py-0.2 rounded text-[8px] font-bold uppercase tracking-wider ${getTypeBadge(selectedBomGroup.header.parent_type)}`}>
+                          <span className={`ml-2 px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${getTypeBadge(selectedBomGroup.header.parent_type)}`}>
                             {selectedBomGroup.header.parent_type}
                           </span>
                         )}
@@ -2095,7 +2075,7 @@ export default function Recipes() {
                       <div className="h-6 w-px bg-slate-200 dark:bg-[#1F3A5C]" />
                       <div className="text-left md:text-right">
                         <span className="text-[8px] block font-bold text-slate-400 uppercase tracking-wider">Status</span>
-                        <span className={`inline-block px-1.5 py-0.2 rounded text-[8px] font-bold uppercase tracking-wider ${getStatusBadge(selectedBomGroup.header.status)}`}>
+                        <span className={`inline-block px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${getStatusBadge(selectedBomGroup.header.status)}`}>
                           {selectedBomGroup.header.status}
                         </span>
                       </div>
@@ -2372,7 +2352,7 @@ export default function Recipes() {
                                       <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
                                         Rev {revGroup.header.revision}
                                       </span>
-                                      <span className={`px-1.5 py-0.2 rounded text-[8px] font-bold uppercase ${getStatusBadge(revGroup.header.status)}`}>
+                                      <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase ${getStatusBadge(revGroup.header.status)}`}>
                                         {revGroup.header.status}
                                       </span>
                                     </div>
