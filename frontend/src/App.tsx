@@ -66,6 +66,7 @@ export default function App() {
                   <Route path="equipment" element={<Equipment />} />
                   <Route path="compliance" element={<Compliance />} />
                   <Route path="trace/:tab?" element={<TrackTrace />} />
+                  <Route path="help/:tab?" element={<Help />} />
                   <Route path="help" element={<Help />} />
                   <Route path="admin/:tab?" element={<AdminPanel />} />
                   <Route path="admin" element={<AdminPanel />} />

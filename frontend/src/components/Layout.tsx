@@ -43,7 +43,10 @@ import {
   X,
   Building2,
   Palette,
-  Sparkles
+  Sparkles,
+  Phone,
+  GitFork,
+  Calculator
 } from 'lucide-react';
 import { AlertNotification } from '../context/shopfloorStore';
 
@@ -153,8 +156,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         }] : []),
         {
           title: 'Support',
-          directPath: '/help',
-          icon: <HelpCircle size={15} />
+          items: [
+            { path: '/help/contact', label: 'Contact Us & Support', icon: <Phone size={18} /> },
+            { path: '/help/track-trace', label: 'Track & Trace Guide', icon: <GitFork size={18} /> },
+            { path: '/help/operations', label: 'Shopfloor Operations', icon: <Smartphone size={18} /> },
+            { path: '/help/quality-compliance', label: 'Batch Records & Quality', icon: <ClipboardList size={18} /> },
+            { path: '/help/oee', label: 'OEE Calculations', icon: <Calculator size={18} /> },
+            { path: '/help/monitoring', label: 'Machine Statuses', icon: <Cpu size={18} /> },
+            { path: '/help/master-data', label: 'Master Data Setup', icon: <Boxes size={18} /> },
+          ]
         }
       ];
 
@@ -166,6 +176,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         : g.items?.some(item =>
             pathname === item.path ||
             (item.path.startsWith('/trace') && pathname.startsWith(item.path)) ||
+            (item.path.startsWith('/help') && pathname.startsWith(item.path)) ||
             (item.path.startsWith('/super-admin') && pathname.startsWith(item.path)) ||
             (item.path.startsWith('/admin') && (pathname.startsWith(item.path) || pathname === '/admin'))
           )
@@ -492,7 +503,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               const hasActiveChild = (group.items || []).some(
                 (item) =>
                   location.pathname === item.path ||
-                  (item.path.startsWith('/trace') && location.pathname.startsWith(item.path))
+                  (item.path.startsWith('/trace') && location.pathname.startsWith(item.path)) ||
+                  (item.path.startsWith('/help') && location.pathname.startsWith(item.path))
               );
 
               return (
@@ -530,6 +542,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         const isActive =
                           location.pathname === item.path ||
                           (item.path.startsWith('/trace/') && location.pathname.startsWith(item.path)) ||
+                          (item.path.startsWith('/help/') && location.pathname.startsWith(item.path)) ||
+                          (item.path === '/help/contact' && location.pathname === '/help') ||
                           (item.path.startsWith('/admin/') && location.pathname.startsWith(item.path)) ||
                           (item.path === '/admin/material' && location.pathname === '/admin');
                         return (
