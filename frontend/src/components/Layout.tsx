@@ -56,6 +56,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedAlertForModal, setSelectedAlertForModal] = useState<AlertNotification | null>(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
 
   // Close notification popover when clicking anywhere outside
@@ -230,6 +231,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       root.classList.remove('dark');
     }
   }, [theme, mode]);
+
+  
+  // Close logout confirmation modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showLogoutModal) {
+        setShowLogoutModal(false);
+      }
+    };
+    if (showLogoutModal) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showLogoutModal]);
 
   const handleLogout = () => {
     logout();
@@ -418,8 +433,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <span className="text-[10px] text-slate-400 font-semibold tracking-wider">{user.role}</span>
               </div>
               <button
-                onClick={handleLogout}
-                className="p-1 text-slate-400 hover:text-red-400 transition"
+                type="button"
+                onClick={() => setShowLogoutModal(true)}
+                className="p-1 text-slate-400 hover:text-red-400 transition cursor-pointer"
                 title="Logout"
               >
                 <LogOut size={15} />
@@ -710,6 +726,52 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       )}
-    </div>
+    
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setShowLogoutModal(false)}
+        >
+          <div
+            className="bg-white dark:bg-[#142A45] border-2 border-[#174A7C]/30 dark:border-[#1F3A5C] rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 mx-auto rounded-full bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center shadow-xs">
+              <LogOut size={24} />
+            </div>
+
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                Do you want to logout?
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+                Are you sure you want to end your active session? Any unsaved shopfloor entries may be lost.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 px-4 py-2.5 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              >
+                NO
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowLogoutModal(false);
+                  handleLogout();
+                }}
+                className="flex-1 px-4 py-2.5 text-xs font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-600/25 transition cursor-pointer"
+              >
+                YES
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+</div>
   );
 }
