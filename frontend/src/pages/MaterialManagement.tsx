@@ -23,6 +23,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useShopfloorStore } from '../context/shopfloorStore';
 import StlViewer from '../components/StlViewer';
 import { getApiUrl } from '../config';
+import { toast } from '../context/toastStore';
 import {
   Boxes,
   Warehouse,
@@ -434,14 +435,14 @@ export default function MaterialManagement() {
         setMatMfg('');
         setSelectedFile(null);
         await loadAllData();
-        alert('Material Master Record created successfully!');
+        toast.success('Material Master Record created successfully!');
       } else {
         const errData = await response.json().catch(() => ({}));
-        alert(`Failed to add material: ${errData.message || response.statusText || 'Server error'}`);
+        toast.error(`Failed to add material: ${errData.message || response.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while adding raw material.');
+      toast.error('Network error while adding raw material.');
     }
   };
 
@@ -482,11 +483,11 @@ export default function MaterialManagement() {
         loadAllData();
       } else {
         const errData = await response.json().catch(() => ({}));
-        alert(`Failed to log GRN: ${errData.message || response.statusText || 'Server error'}`);
+        toast.error(`Failed to log GRN: ${errData.message || response.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while logging GRN.');
+      toast.error('Network error while logging GRN.');
     }
   };
 
@@ -561,11 +562,11 @@ export default function MaterialManagement() {
         setDispenseNet(0); setDispenseGross(0);
       } else {
         const error = await res.json();
-        alert(error.message || 'FEFO Allocation failed. Out of qualified stock.');
+        toast.error(error.message || 'FEFO Allocation failed. Out of qualified stock.');
       }
     } catch (err) {
       console.error(err);
-      alert('Error searching FEFO allocation stock');
+      toast.error('Error searching FEFO allocation stock');
     }
   };
 
@@ -578,11 +579,11 @@ export default function MaterialManagement() {
    */
   const triggerDispenseSignature = () => {
     if (!dispenseBatchId || dispenseAllocations.length === 0) {
-      alert('Please select an active Batch Campaign and execute FEFO stock allocation first.');
+      toast.warning('Please select an active Batch Campaign and execute FEFO stock allocation first.');
       return;
     }
     if (!drumVerified) {
-      alert('Poka-Yoke Enforced: Please scan the raw material drum 2D QR code to verify ingredient before dispensing.');
+      toast.warning('Poka-Yoke Enforced: Please scan the raw material drum 2D QR code to verify ingredient before dispensing.');
       setScannerTarget('DRUM_DISPENSE');
       setShowQrScanner(true);
       return;
@@ -758,7 +759,7 @@ export default function MaterialManagement() {
         setTraceResult(await res.json());
       } else {
         setTraceResult(null);
-        alert('Trace lot genealogy not found.');
+        toast.error('Trace lot genealogy not found.');
       }
     } catch (err) {
       console.error(err);

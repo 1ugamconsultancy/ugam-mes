@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useShopfloorStore } from '../context/shopfloorStore';
 import logoImg from '../logo.png';
 import UgamAIChatbot from './UgamAIChatbot';
+import ToastContainer from './ToastContainer';
 import {
   LayoutDashboard,
   MonitorPlay,
@@ -772,6 +773,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       )}
-</div>
+  <ToastContainer />
+    </div>
   );
 }

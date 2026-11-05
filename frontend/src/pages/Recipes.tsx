@@ -63,6 +63,7 @@ import {
 } from 'lucide-react';
 import StlViewer from '../components/StlViewer';
 import { getApiUrl } from '../config';
+import { toast } from '../context/toastStore';
 
 interface BomItem {
   line_no?: number;
@@ -752,7 +753,7 @@ export default function Recipes() {
   const triggerReviseRecipeSign = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newVersion) {
-      alert('Please specify the new revision.');
+      toast.warning('Please specify the new revision.');
       return;
     }
     setSignActionType('REVISE_RECIPE');
@@ -804,11 +805,11 @@ export default function Recipes() {
   const triggerReviseBomSign = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newBomRev) {
-      alert('Please specify the new BOM revision.');
+      toast.warning('Please specify the new BOM revision.');
       return;
     }
     if (reviseBomComponents.length === 0) {
-      alert('BOM must have at least one component line.');
+      toast.warning('BOM must have at least one component line.');
       return;
     }
     setSignActionType('REVISE_BOM');
@@ -831,7 +832,7 @@ export default function Recipes() {
   const triggerCreateRecipeSign = (e: React.FormEvent) => {
     e.preventDefault();
     if (!code || !name) {
-      alert('Please fill out Recipe Code and Name.');
+      toast.warning('Please fill out Recipe Code and Name.');
       return;
     }
     setSignActionType('CREATE_RECIPE');
@@ -854,11 +855,11 @@ export default function Recipes() {
   const triggerCreateBomSign = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newBomId || !newBomParentMat) {
-      alert('Please specify BOM ID and Parent Material.');
+      toast.warning('Please specify BOM ID and Parent Material.');
       return;
     }
     if (newBomComponents.length === 0) {
-      alert('Please add at least one component to the BOM.');
+      toast.warning('Please add at least one component to the BOM.');
       return;
     }
     setSignActionType('CREATE_BOM');

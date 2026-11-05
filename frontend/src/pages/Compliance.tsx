@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useShopfloorStore } from '../context/shopfloorStore';
 import { getApiUrl } from '../config';
+import { toast } from '../context/toastStore';
 import {
   History,
   AlertOctagon,
@@ -262,11 +263,11 @@ export default function Compliance() {
         loadData();
       } else {
         const err = await response.json().catch(() => ({}));
-        alert(`Failed to log deviation: ${err.message || response.statusText || 'Server error'}`);
+        toast.error(`Failed to log deviation: ${err.message || response.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while logging deviation.');
+      toast.error('Network error while logging deviation.');
     }
   };
 
@@ -321,11 +322,11 @@ export default function Compliance() {
         loadData();
       } else {
         const err = await response.json().catch(() => ({}));
-        alert(`Failed to log CAPA plan: ${err.message || response.statusText || 'Server error'}`);
+        toast.error(`Failed to log CAPA plan: ${err.message || response.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while logging CAPA.');
+      toast.error('Network error while logging CAPA.');
     }
   };
 
@@ -377,11 +378,11 @@ export default function Compliance() {
         loadData();
       } else {
         const err = await response.json().catch(() => ({}));
-        alert(`Failed to initiate Change Control: ${err.message || response.statusText || 'Server error'}`);
+        toast.error(`Failed to initiate Change Control: ${err.message || response.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while initiating Change Control.');
+      toast.error('Network error while initiating Change Control.');
     }
   };
 

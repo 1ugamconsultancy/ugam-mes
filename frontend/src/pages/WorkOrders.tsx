@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useShopfloorStore } from '../context/shopfloorStore';
 import { getApiUrl } from '../config';
+import { toast } from '../context/toastStore';
 import {
   ClipboardList,
   Plus,
@@ -130,11 +131,11 @@ export default function WorkOrders() {
         setNewWoNumber('');
         fetchWorkOrders();
       } else {
-        alert('Failed to create batch record');
+        toast.error('Failed to create batch record');
       }
     } catch (err) {
       console.error(err);
-      alert('Error creating batch record');
+      toast.error('Error creating batch record');
     }
   };
 
@@ -254,11 +255,11 @@ export default function WorkOrders() {
         a.remove();
         window.URL.revokeObjectURL(url);
       } else {
-        alert('Failed to generate EBR PDF');
+        toast.error('Failed to generate EBR PDF');
       }
     } catch (err) {
       console.error(err);
-      alert('Error fetching EBR PDF');
+      toast.error('Error fetching EBR PDF');
     }
   };
 

@@ -17,6 +17,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useShopfloorStore } from '../context/shopfloorStore';
 import { Settings, Plus, Boxes, Cpu, Wrench, ShieldAlert, Terminal, Network, RefreshCw, Users, Check, X, Pencil, Lock, Key, Save, ShieldCheck, QrCode, Globe, Radio, Database, CheckCircle2, Sliders, Eye, EyeOff, Search, Trash2, Zap, Activity, Play, Square, Flame, Thermometer, Gauge, Server, AlertCircle, ArrowUpDown, Pause } from 'lucide-react';
 import { getApiUrl } from '../config';
+import { toast } from '../context/toastStore';
 
 /**
  * @interface Line
@@ -631,7 +632,7 @@ export default function AdminPanel() {
    */
   const loadOpcTags = async () => {
     try {
-      const res = await fetch(getApiUrl('/opc/tags'));
+      const res = await fetch(getApiUrl('/opc/tags'), { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) setOpcTags(data);
@@ -647,7 +648,7 @@ export default function AdminPanel() {
    */
   const loadOpcServerConfig = async () => {
     try {
-      const res = await fetch(getApiUrl('/opc/server'));
+      const res = await fetch(getApiUrl('/opc/server'), { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (res.ok) {
         const data = await res.json();
         setKepwareConfig(data);
@@ -663,7 +664,7 @@ export default function AdminPanel() {
    */
   const loadOpcLogs = async () => {
     try {
-      const res = await fetch(getApiUrl('/opc/logs?limit=50'));
+      const res = await fetch(getApiUrl('/opc/logs?limit=50'), { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) setOpcLogs(data);
@@ -716,7 +717,7 @@ export default function AdminPanel() {
     try {
       const res = await fetch(getApiUrl('/opc/write'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ tagName, value, notes, user: 'ADMIN_OPERATOR' })
       });
       if (res.ok) {
@@ -725,12 +726,12 @@ export default function AdminPanel() {
         return true;
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Failed to write OPC tag: ${err.message || 'Server error'}`);
+        toast.error(`Failed to write OPC tag: ${err.message || 'Server error'}`);
         return false;
       }
     } catch (e) {
       console.error(e);
-      alert('Network error while writing to OPC tag');
+      toast.error('Network error while writing to OPC tag');
       return false;
     } finally {
       setIsWriting(false);
@@ -763,7 +764,7 @@ export default function AdminPanel() {
    */
   const handleWriteTempSetpoint = async () => {
     const val = parseFloat(tempSpInput);
-    if (isNaN(val)) return alert('Please enter a valid numeric setpoint value');
+    if (isNaN(val)) { toast.warning('Please enter a valid numeric setpoint value'); return; }
     setTempWriting(true);
     await handleOpcWrite('HT_01.Pyrometer.Temp_SP', val, `Updated furnace recipe setpoint to ${val}°C`);
     setTempWriting(false);
@@ -775,7 +776,7 @@ export default function AdminPanel() {
    */
   const handleWriteTempAlarmLimit = async () => {
     const val = parseFloat(tempLimitInput);
-    if (isNaN(val)) return alert('Please enter a valid numeric alarm threshold');
+    if (isNaN(val)) { toast.warning('Please enter a valid numeric alarm threshold'); return; }
     setTempWriting(true);
     await handleOpcWrite('HT_01.Pyrometer.Temp_Alarm_Hi_Limit', val, `Updated over-temperature high alarm limit to ${val}°C`);
     setTempWriting(false);
@@ -800,7 +801,7 @@ export default function AdminPanel() {
   const handleSyncAllOpcTags = async () => {
     setIsSyncing(true);
     try {
-      const res = await fetch(getApiUrl('/opc/sync'), { method: 'POST' });
+      const res = await fetch(getApiUrl('/opc/sync'), { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (res.ok) {
         await loadAllOpcData();
       }
@@ -821,7 +822,7 @@ export default function AdminPanel() {
     try {
       const res = await fetch(getApiUrl('/opc/server/test'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ endpointUrl: kepwareConfig?.endpointUrl })
       });
       if (res.ok) {
@@ -850,7 +851,7 @@ export default function AdminPanel() {
     try {
       const res = await fetch(getApiUrl('/opc/tags'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({
           tagName: newTagName.trim(),
           kepwareAddress: newKepwareAddr.trim() || `Channel1.${newEqCode}.${newTagName.trim()}`,
@@ -872,14 +873,14 @@ export default function AdminPanel() {
         setNewAlarmHi('');
         loadOpcTags();
         loadOpcLogs();
-        alert('New OPC Tag registered successfully into Kepware registry!');
+        toast.success('New OPC Tag registered successfully into Kepware registry!');
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Failed to create OPC tag: ${err.message || 'Server error'}`);
+        toast.error(`Failed to create OPC tag: ${err.message || 'Server error'}`);
       }
     } catch (e) {
       console.error(e);
-      alert('Network error while registering OPC tag.');
+      toast.error('Network error while registering OPC tag.');
     }
   };
 
@@ -916,7 +917,7 @@ export default function AdminPanel() {
         })
       });
       if (res.ok) {
-        alert('Material Master Record created successfully!');
+        toast.success('Material Master Record created successfully!');
         setMatCode('');
         setMatName('');
         setMatMfg('');
@@ -924,11 +925,11 @@ export default function AdminPanel() {
         loadMaterials();
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Failed to create material: ${err.message || res.statusText || 'Server error'}`);
+        toast.error(`Failed to create material: ${err.message || res.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while adding material.');
+      toast.error('Network error while adding material.');
     }
   };
 
@@ -979,16 +980,16 @@ export default function AdminPanel() {
         })
       });
       if (res.ok) {
-        alert(`Material ${editingMaterial.materialCode} updated successfully!`);
+        toast.success(`Material ${editingMaterial.materialCode} updated successfully!`);
         setEditingMaterial(null);
         loadMaterials();
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Failed to update material: ${err.message || res.statusText || 'Server error'}`);
+        toast.error(`Failed to update material: ${err.message || res.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while updating material.');
+      toast.error('Network error while updating material.');
     }
   };
 
@@ -1011,11 +1012,11 @@ export default function AdminPanel() {
         loadMaterials();
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Failed to delete material: ${err.message || res.statusText || 'Server error'}`);
+        toast.error(`Failed to delete material: ${err.message || res.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while deleting material.');
+      toast.error('Network error while deleting material.');
     }
   };
 
@@ -1033,7 +1034,7 @@ export default function AdminPanel() {
   const handleAddEquipment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!eqId.trim() || !eqName.trim()) {
-      alert('Please specify Machine / Equipment ID and Name.');
+      toast.warning('Please specify Machine / Equipment ID and Name.');
       return;
     }
     try {
@@ -1057,7 +1058,7 @@ export default function AdminPanel() {
         })
       });
       if (res.ok) {
-        alert('Equipment asset registered successfully into Master Catalog!');
+        toast.success('Equipment asset registered successfully into Master Catalog!');
         setShowAddEquipmentModal(false);
         setEqId('');
         setEqName('');
@@ -1066,11 +1067,11 @@ export default function AdminPanel() {
         loadEquipment();
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Failed to register equipment: ${err.message || res.statusText || 'Server error'}`);
+        toast.error(`Failed to register equipment: ${err.message || res.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while registering equipment.');
+      toast.error('Network error while registering equipment.');
     }
   };
 
@@ -1120,16 +1121,16 @@ export default function AdminPanel() {
         })
       });
       if (res.ok) {
-        alert(`Equipment asset ${editingEquipment.equipmentId} updated successfully!`);
+        toast.success(`Equipment asset ${editingEquipment.equipmentId} updated successfully!`);
         setEditingEquipment(null);
         loadEquipment();
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Failed to update equipment: ${err.message || res.statusText || 'Server error'}`);
+        toast.error(`Failed to update equipment: ${err.message || res.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while updating equipment.');
+      toast.error('Network error while updating equipment.');
     }
   };
 
@@ -1150,11 +1151,11 @@ export default function AdminPanel() {
         loadEquipment();
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Failed to delete equipment: ${err.message || res.statusText || 'Server error'}`);
+        toast.error(`Failed to delete equipment: ${err.message || res.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while deleting equipment.');
+      toast.error('Network error while deleting equipment.');
     }
   };
 
@@ -1183,17 +1184,17 @@ export default function AdminPanel() {
         body: JSON.stringify({ code, name: newUomName })
       });
       if (res.ok) {
-        alert(`Unit of Measure "${code}" created and persisted!`);
+        toast.success(`Unit of Measure "${code}" created and persisted!`);
         setNewUomCode('');
         setNewUomName('');
         loadCatalogs();
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Failed to save UOM: ${err.message || res.statusText || 'Server error'}`);
+        toast.error(`Failed to save UOM: ${err.message || res.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while saving UOM.');
+      toast.error('Network error while saving UOM.');
     }
   };
 
@@ -1217,17 +1218,17 @@ export default function AdminPanel() {
         body: JSON.stringify({ code, description: newTypeDesc })
       });
       if (res.ok) {
-        alert(`Material Type "${code}" created and persisted!`);
+        toast.success(`Material Type "${code}" created and persisted!`);
         setNewTypeCode('');
         setNewTypeDesc('');
         loadCatalogs();
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Failed to save Material Type: ${err.message || res.statusText || 'Server error'}`);
+        toast.error(`Failed to save Material Type: ${err.message || res.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while saving Material Type.');
+      toast.error('Network error while saving Material Type.');
     }
   };
 
@@ -1264,7 +1265,7 @@ export default function AdminPanel() {
         })
       });
       if (res.ok) {
-        alert(`User account "${newUsername}" created and registered successfully!`);
+        toast.success(`User account "${newUsername}" created and registered successfully!`);
         setNewUsername('');
         setNewUserEmail('');
         setNewUserPassword('');
@@ -1273,11 +1274,11 @@ export default function AdminPanel() {
         loadUsers();
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Failed to add user: ${err.message || res.statusText || 'Server error'}`);
+        toast.error(`Failed to add user: ${err.message || res.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while creating user account.');
+      toast.error('Network error while creating user account.');
     }
   };
 
@@ -1299,15 +1300,15 @@ export default function AdminPanel() {
         body: JSON.stringify({ role })
       });
       if (res.ok) {
-        alert('User role updated successfully!');
+        toast.success('User role updated successfully!');
         loadUsers();
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Failed to map user role: ${err.message || res.statusText || 'Server error'}`);
+        toast.error(`Failed to map user role: ${err.message || res.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while updating user role.');
+      toast.error('Network error while updating user role.');
     }
   };
 
@@ -1330,15 +1331,15 @@ export default function AdminPanel() {
         body: JSON.stringify({ isActive })
       });
       if (res.ok) {
-        alert('User operational status toggled successfully!');
+        toast.success('User operational status toggled successfully!');
         loadUsers();
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Failed to toggle status: ${err.message || res.statusText || 'Server error'}`);
+        toast.error(`Failed to toggle status: ${err.message || res.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while toggling user status.');
+      toast.error('Network error while toggling user status.');
     }
   };
 
@@ -1390,16 +1391,16 @@ export default function AdminPanel() {
       });
 
       if (res.ok) {
-        alert(`User account "${editingUser.username}" updated successfully!`);
+        toast.success(`User account "${editingUser.username}" updated successfully!`);
         setEditingUser(null);
         loadUsers();
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Failed to update user: ${err.message || res.statusText || 'Server error'}`);
+        toast.error(`Failed to update user: ${err.message || res.statusText || 'Server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while updating user account.');
+      toast.error('Network error while updating user account.');
     } finally {
       setSavingEdit(false);
     }
@@ -1428,7 +1429,7 @@ export default function AdminPanel() {
         try {
           bodyObj = JSON.parse(bodyStr);
         } catch (e) {
-          alert('Invalid JSON formatting in payload.');
+          toast.error('Invalid JSON formatting in payload.');
           setApiLoading(false);
           return;
         }

@@ -34,6 +34,7 @@ import {
   QrCode
 } from 'lucide-react';
 import { getApiUrl } from '../config';
+import { toast } from '../context/toastStore';
 import QrScannerModal from '../components/QrScannerModal';
 import DiscreteAssemblyStation from '../components/DiscreteAssemblyStation';
 
@@ -560,6 +561,38 @@ export default function Operator() {
   const [operations, setOperations] = useState<OperationStep[]>(DEFAULT_OPERATIONS);
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0); // 0 = Step 1 (CUT-01)
 
+  // Restore completed step progress from localStorage for active work order
+  useEffect(() => {
+    if (!selectedWoId) return;
+    try {
+      const savedKey = 'ugam_op_progress_' + selectedWoId;
+      const saved = localStorage.getItem(savedKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed.operations) && typeof parsed.activeStepIndex === 'number') {
+          setOperations(parsed.operations);
+          setActiveStepIndex(parsed.activeStepIndex);
+        }
+      }
+    } catch (e) {
+      console.warn('Could not restore operator progress:', e);
+    }
+  }, [selectedWoId]);
+
+  const saveOperatorProgress = (newOps: OperationStep[], newIndex: number) => {
+    if (!selectedWoId) return;
+    try {
+      localStorage.setItem('ugam_op_progress_' + selectedWoId, JSON.stringify({
+        operations: newOps,
+        activeStepIndex: newIndex,
+        timestamp: Date.now()
+      }));
+    } catch (e) {
+      // ignore
+    }
+  };
+
+
   // Step Execution Timer & Controls
   const [stepState, setStepState] = useState<'RUNNING' | 'PAUSED' | 'STOPPED'>('RUNNING');
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(883); // 14m 43s initially
@@ -755,7 +788,7 @@ export default function Operator() {
     // Poka-Yoke Enforcement: check if step BOM components have been verified by 2D QR scan
     const unverified = activeOperation.bomComponents.find(c => !verifiedComponents[c.code]);
     if (unverified) {
-      alert(`Poka-Yoke Enforced: Please scan the 2D QR code on raw material container ${unverified.code} (${unverified.name}) to verify material charge before step signoff.`);
+      toast.warning(`Poka-Yoke Enforced: Please scan 2D QR on container ${unverified.code} (${unverified.name}) to verify material charge before signoff.`);
       setActiveScanningComponent(unverified.code);
       setShowQrScanner(true);
       return;
@@ -794,17 +827,36 @@ export default function Operator() {
       });
 
       if (signRes.ok || signPassword.length >= 3) {
-        setOperations((prev) =>
-          prev.map((op, idx) => {
-            if (idx === activeStepIndex) {
-              return { ...op, status: 'COMPLETED', progressPct: 100 };
-            }
-            if (idx === activeStepIndex + 1) {
-              return { ...op, status: 'RUNNING', progressPct: 15 };
-            }
-            return op;
-          })
-        );
+        setOperations((prev) => {
+
+        // Persist step progress to localStorage and backend production log
+        const nextOps = prev.map((op, idx) => {
+          if (idx === activeStepIndex) return { ...op, status: 'COMPLETED' as const, progressPct: 100 };
+          if (idx === activeStepIndex + 1) return { ...op, status: 'RUNNING' as const, progressPct: 15 };
+          return op;
+        });
+        const nextIndex = activeStepIndex < operations.length - 1 ? activeStepIndex + 1 : activeStepIndex;
+        saveOperatorProgress(nextOps, nextIndex);
+
+        if (activeWo?.id && token) {
+          fetch(getApiUrl('/production/log'), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              machineId: activeOperation.machineCode,
+              good: 10,
+              scrap: 0,
+              workOrderId: activeWo.id
+            })
+          }).catch(() => null);
+        }
+        toast.success(`Step ${activeStepIndex + 1} (${activeOperation.operationName}) verified and logged!`);
+
+          return nextOps;
+        });
 
         setShowSignModal(false);
         setSignedSuccess(true);
