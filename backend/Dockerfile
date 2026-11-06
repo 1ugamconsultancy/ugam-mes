@@ -15,5 +15,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/uploads ./uploads
 COPY setup_ugam_mes_db.sql ./setup_ugam_mes_db.sql
+COPY src/database/pharma-seed.sql ./src/database/pharma-seed.sql
+COPY src/database/pharma-seed.sql ./pharma-seed.sql
 EXPOSE 3000
 CMD ["node", "dist/main"]

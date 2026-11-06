@@ -37,6 +37,8 @@ export default function Login() {
         // Super Admin directs to enterprise management page by default
         if (data.user?.role === 'SUPER_ADMIN') {
           navigate('/super-admin');
+        } else if (data.user?.role === 'OPERATOR') {
+          navigate('/operator');
         } else {
           navigate('/dashboard');
         }

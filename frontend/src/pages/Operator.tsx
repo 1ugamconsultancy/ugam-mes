@@ -1031,7 +1031,7 @@ const PHARMA_LLE_OPERATIONS: OperationStep[] = [
 export default function Operator() {
   const { token, user } = useShopfloorStore();
 
-  const isPharmaUser = user?.username?.startsWith('pharma') || user?.plantId === 'a0000000-0003-3333-3333-333333333333';
+  const isPharmaUser = Boolean(user?.username?.startsWith('pharma') || user?.plantId === 'a0000000-0003-3333-3333-333333333333' || user?.plantId === '396c9f46-006d-4ade-82d2-6fd1b5c6c5e5' || user?.plantName?.toLowerCase().includes('pharma'));
 
   // Machine and Work Order state
   const [machines, setMachines] = useState<any[]>([
@@ -1274,7 +1274,7 @@ export default function Operator() {
           const woData = await woRes.json();
           if (Array.isArray(woData) && woData.length > 0) {
             setWorkOrders(woData);
-            const pharmaWo = (user?.username?.startsWith('pharma') || user?.plantId === 'a0000000-0003-3333-3333-333333333333')
+            const pharmaWo = isPharmaUser
               ? woData.find((w: any) => w.woNumber === 'WO-API-2026-001' || w.productSku === 'API-INT-X')
               : null;
             const seatWo = woData.find((w: any) => w.woNumber === 'WO-SEAT-2026-001' || w.productSku === 'SEAT-DRV-101');
