@@ -580,6 +580,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       ];
 
       for (const su of pharmaSerials) {
+        await this.pool.query("DELETE FROM public.serialized_units WHERE serial_number = $1", [su.sn]);
         await this.pool.query(`
           INSERT INTO public.serialized_units (
             id, work_order_id, product_id, serial_number, status, current_operation_no, current_work_center, warehouse_location, plant_id, organization_id, created_at, updated_at
@@ -587,10 +588,10 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           VALUES (
             gen_random_uuid(), $1, $2, $3, $4, $5, 'WC-API-EXT', $6, $7, $8, NOW(), NOW()
           )
-          ON CONFLICT (serial_number) DO UPDATE SET plant_id = $7, organization_id = $8, status = $4, warehouse_location = $6
         `, [woId, productId, su.sn, su.status, su.op, su.loc, plantId, orgId]);
 
         // Seed 5W1H Genealogy Events for this unit
+        await this.pool.query("DELETE FROM public.product_genealogy_events WHERE unit_serial = $1", [su.sn]);
         await this.pool.query(`
           INSERT INTO public.product_genealogy_events (
             unit_serial, work_order_id, operation_no, operation_name, work_center, machine_id,
@@ -603,18 +604,17 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           ($1, $2, 5, 'Mix phases', 'WC-API-EXT', 'EX-101', 'RM-SOLV-001', 'Ethyl Acetate Solvent USP', 'LOT-SOLV-2026-02', 'VND-PHARMA-02', 'SolvChem Specialities Ltd', 'WH-PHARMA-SOLV / FLAMMABLE-BAY-2', 'pharma_op1', 'Aakash Verma (Extraction OP)', 'pharma_qa1', 'Dr. Priya Sen (QA Compliance)', true, 'PASS', 'Agitation speed and jacket temperature within validated ranges', '{"mixingSpeedRpm": 250, "temperatureC": 23.5, "mixingDurationMin": 45}', NOW() - INTERVAL '3 hours', $3, $4),
           ($1, $2, 8, 'Verify aqueous phase conductivity', 'WC-API-EXT', 'EX-101', 'INT-CRUDE-001', 'Aqueous Waste Layer', 'LOT-AQ-EXT-01', 'VND-PHARMA-01', 'BioPure Synthesis India Pvt Ltd', 'EX-101 Sump', 'pharma_op1', 'Aakash Verma (Extraction OP)', 'pharma_qa1', 'Dr. Priya Sen (QA Compliance)', true, 'PASS', 'High ionic conductivity confirms complete salt extraction into aqueous phase', '{"conductivityMsCm": 52.4, "specification": "> 45 mS/cm"}', NOW() - INTERVAL '2 hours', $3, $4),
           ($1, $2, 9, 'Verify organic phase / carryover', 'WC-API-EXT', 'EX-101', 'API-INT-X', 'Recovered Organic API Layer', 'LOT-API-2026-001', 'VND-PHARMA-01', 'BioPure Synthesis India Pvt Ltd', 'REC-102 Receiver', 'pharma_op1', 'Aakash Verma (Extraction OP)', 'pharma_qa1', 'Dr. Priya Sen (QA Compliance)', true, 'PASS', 'Low organic conductivity confirms negligible aqueous carryover (< 0.20 mS/cm)', '{"conductivityMsCm": 0.08, "specification": "< 0.20 mS/cm"}', NOW() - INTERVAL '1 hour', $3, $4)
-          ON CONFLICT DO NOTHING
         `, [su.sn, woId, plantId, orgId]);
       }
 
       // Seed 2 Production Logs for Pharma
+      await this.pool.query("DELETE FROM public.production_logs WHERE work_order_id = $1", [woId]);
       await this.pool.query(`
         INSERT INTO public.production_logs (
           id, work_order_id, machine_id, operator_id, timestamp, count_good, count_scrap, plant_id, organization_id
         )
         VALUES 
         (gen_random_uuid(), $1, 'd1111111-0004-1111-1111-111111111111', '348818bf-4f01-4545-b4d1-6af46a51a858', NOW() - INTERVAL '2 hours', 45, 0, $2, $3)
-        ON CONFLICT DO NOTHING
       `, [woId, plantId, orgId]);
 
       console.log('🎉 Pharma Liquid-Liquid Extraction Plant, operations, and users fully ensured & linked!');
