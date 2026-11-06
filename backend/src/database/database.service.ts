@@ -42,6 +42,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         this.isConnected = true;
         console.log('Successfully connected to PostgreSQL Database Server');
         await this.autoBootstrapIfEmpty();
+        await this.runMasterDataScopingMigration();
         await this.autoEnsurePharmaPlantAndUsers();
       })
       .catch((err) => {
@@ -92,6 +93,38 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   }
 
   
+  
+  public async runMasterDataScopingMigration() {
+    try {
+      console.log('🔄 Checking and applying Master Data Plant & Org Scoping Migration...');
+      const candidatePaths = [
+        path.join(__dirname, 'migration_master_data_plant_scoping.sql'),
+        path.join(__dirname, '..', 'src', 'database', 'migration_master_data_plant_scoping.sql'),
+        path.join(process.cwd(), 'src', 'database', 'migration_master_data_plant_scoping.sql'),
+        path.join(process.cwd(), 'dist', 'database', 'migration_master_data_plant_scoping.sql'),
+        path.join(process.cwd(), 'migration_master_data_plant_scoping.sql'),
+        '/app/migration_master_data_plant_scoping.sql',
+        '/app/src/database/migration_master_data_plant_scoping.sql'
+      ];
+      let sqlContent = '';
+      for (const p of candidatePaths) {
+        if (fs.existsSync(p)) {
+          sqlContent = fs.readFileSync(p, 'utf8');
+          console.log(`Found master data scoping migration at: ${p}`);
+          break;
+        }
+      }
+      if (sqlContent) {
+        await this.pool.query(sqlContent);
+        console.log('✅ Master Data Plant & Org Scoping Migration applied successfully!');
+      } else {
+        console.warn('Could not locate migration_master_data_plant_scoping.sql');
+      }
+    } catch (err: any) {
+      console.error('Error applying master data scoping migration:', err?.message || err);
+    }
+  }
+
   public async autoEnsurePharmaPlantAndUsers() {
     try {
       console.log('🔍 Checking Pharma Liquid-Liquid Extraction Plant, operations, and user allocations...');
@@ -253,9 +286,9 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
       // 8. Ensure Equipment Master: EX-101
       await this.pool.query(`
-        INSERT INTO public.equipment_master (equipment_id, equipment_name, work_center, equipment_type, manufacturer, model, capacity_per_shift, oee_applicable, status)
-        VALUES ('EX-101', 'Extraction Vessel EX-101', 'WC-API-EXT', 'EXTRACTION_VESSEL', 'Pfaudler Reactor Systems', 'GL-EX-250', 500, 'Y', 'RUNNING')
-        ON CONFLICT (equipment_id) DO UPDATE SET status = 'RUNNING', work_center = 'WC-API-EXT'
+        INSERT INTO public.equipment_master (equipment_id, equipment_name, work_center, equipment_type, manufacturer, model, capacity_per_shift, oee_applicable, status, plant_id, organization_id)
+        VALUES ('EX-101', 'Extraction Vessel EX-101', 'WC-API-EXT', 'EXTRACTION_VESSEL', 'Pfaudler Reactor Systems', 'GL-EX-250', 500, 'Y', 'RUNNING', $1, $2)
+        ON CONFLICT (equipment_id) DO UPDATE SET status = 'RUNNING', work_center = 'WC-API-EXT', plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
       `);
 
       // 9. Ensure Warehouse and Location
@@ -291,26 +324,37 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         `, [productId]);
       }
 
+      
+      // 10b. Ensure Pharma Vendors
+      await this.pool.query(`
+        INSERT INTO public.vendors (id, vendor_code, vendor_name, qualification_status, audit_date, contact_information, approved_materials, created_at, plant_id, organization_id)
+        VALUES
+        ('ba000001-0001-1111-1111-111111111111', 'VND-PHARMA-01', 'AuraBio Synthesis Unit', 'QUALIFIED', NOW(), 'Hyderabad Biotech Park; contact@aurabio.in', '["INT-CRUDE-001"]', NOW(), $1, $2),
+        ('ba000001-0002-1111-1111-111111111111', 'VND-PHARMA-02', 'Merck Millipore Bio', 'QUALIFIED', NOW(), 'Darmstadt / Mumbai; pharma-supply@merckgroup.com', '["RM-SOLV-001"]', NOW(), $1, $2),
+        ('ba000001-0003-1111-1111-111111111111', 'VND-PHARMA-03', 'Avantor Performance Materials', 'QUALIFIED', NOW(), 'Radnor PA / Bengaluru; apm-orders@avantorsciences.com', '["RM-SALT-001"]', NOW(), $1, $2)
+        ON CONFLICT (vendor_code) DO UPDATE SET plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
+      `, [plantId, orgId]);
+
       // 11. Materials Master
       await this.pool.query(`
-        INSERT INTO public.material_master (id, material_code, material_name, material_type, category, uom, manufacturer, vendor_id, shelf_life_days, storage_conditions, image_path, status, created_at)
+        INSERT INTO public.material_master (id, material_code, material_name, material_type, category, uom, manufacturer, vendor_id, shelf_life_days, storage_conditions, image_path, status, created_at, plant_id, organization_id)
         VALUES
-        ('ca000001-0001-1111-1111-111111111111', 'INT-CRUDE-001', 'Crude API Reaction Mixture', 'INTERMEDIATE', 'RAW_PHARMA', 'KG', 'AuraBio Synthesis Unit', NULL, 180, '2-8°C Controlled Cold Room', '', 'APPROVED', NOW()),
-        ('ca000001-0002-1111-1111-111111111111', 'RM-SOLV-001', 'Ethyl Acetate Solvent USP', 'RAW_MATERIAL', 'SOLVENT', 'L', 'Merck Millipore Bio', NULL, 730, 'Flammable Storage Cabinet 15-25°C', '', 'APPROVED', NOW()),
-        ('ca000001-0003-1111-1111-111111111111', 'RM-WTR-001', 'Purified Water USP', 'RAW_MATERIAL', 'WATER', 'L', 'In-House Generation Loop', NULL, 30, 'Ambient Loop WFI Circulation', '', 'APPROVED', NOW()),
-        ('ca000001-0004-1111-1111-111111111111', 'RM-SALT-001', 'Sodium Chloride Reagent USP', 'RAW_MATERIAL', 'SALT', 'KG', 'Avantor Performance Materials', NULL, 1095, 'Dry Ambient Storage < 60% RH', '', 'APPROVED', NOW())
-        ON CONFLICT (material_code) DO NOTHING
+        ('ca000001-0001-1111-1111-111111111111', 'INT-CRUDE-001', 'Crude API Reaction Mixture', 'INTERMEDIATE', 'RAW_PHARMA', 'KG', 'AuraBio Synthesis Unit', 'ba000001-0001-1111-1111-111111111111', 180, '2-8°C Controlled Cold Room', '', 'APPROVED', NOW(), $1, $2),
+        ('ca000001-0002-1111-1111-111111111111', 'RM-SOLV-001', 'Ethyl Acetate Solvent USP', 'RAW_MATERIAL', 'SOLVENT', 'L', 'Merck Millipore Bio', 'ba000001-0002-1111-1111-111111111111', 730, 'Flammable Storage Cabinet 15-25°C', '', 'APPROVED', NOW(), $1, $2),
+        ('ca000001-0003-1111-1111-111111111111', 'RM-WTR-001', 'Purified Water USP', 'RAW_MATERIAL', 'WATER', 'L', 'In-House Generation Loop', NULL, 30, 'Ambient Loop WFI Circulation', '', 'APPROVED', NOW(), $1, $2),
+        ('ca000001-0004-1111-1111-111111111111', 'RM-SALT-001', 'Sodium Chloride Reagent USP', 'RAW_MATERIAL', 'SALT', 'KG', 'Avantor Performance Materials', 'ba000001-0003-1111-1111-111111111111', 1095, 'Dry Ambient Storage < 60% RH', '', 'APPROVED', NOW(), $1, $2)
+        ON CONFLICT (material_code) DO UPDATE SET plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
       `);
 
       // 12. Material Batches & Inventory
       await this.pool.query(`
-        INSERT INTO public.material_batches (id, goods_receipt_id, material_id, batch_number, supplier_batch, quantity, uom, manufacturing_date, expiry_date, status, created_at, heat_number)
+        INSERT INTO public.material_batches (id, goods_receipt_id, material_id, batch_number, supplier_batch, quantity, uom, manufacturing_date, expiry_date, status, created_at, heat_number, plant_id, organization_id)
         VALUES
-        ('cb000001-0001-1111-1111-111111111111', NULL, 'ca000001-0001-1111-1111-111111111111', 'LOT-API-CRUDE-04', 'SPL-CRD-889', 120, 'KG', NOW() - INTERVAL '10 days', NOW() + INTERVAL '170 days', 'RELEASED', NOW(), NULL),
-        ('cb000001-0002-1111-1111-111111111111', NULL, 'ca000001-0002-1111-1111-111111111111', 'LOT-EA-SOLV-22', 'MRK-EA-5541', 250, 'L', NOW() - INTERVAL '30 days', NOW() + INTERVAL '700 days', 'RELEASED', NOW(), NULL),
-        ('cb000001-0003-1111-1111-111111111111', NULL, 'ca000001-0003-1111-1111-111111111111', 'LOT-WTR-USP-01', 'WFI-LOOP-01', 500, 'L', NOW() - INTERVAL '2 days', NOW() + INTERVAL '28 days', 'RELEASED', NOW(), NULL)
-        ON CONFLICT (id) DO NOTHING
-      `);
+        ('cb000001-0001-1111-1111-111111111111', NULL, 'ca000001-0001-1111-1111-111111111111', 'LOT-API-CRUDE-04', 'SPL-CRD-889', 120, 'KG', NOW() - INTERVAL '10 days', NOW() + INTERVAL '170 days', 'RELEASED', NOW(), NULL, $1, $2),
+        ('cb000001-0002-1111-1111-111111111111', NULL, 'ca000001-0002-1111-1111-111111111111', 'LOT-EA-SOLV-22', 'MRK-EA-5541', 250, 'L', NOW() - INTERVAL '30 days', NOW() + INTERVAL '700 days', 'RELEASED', NOW(), NULL, $1, $2),
+        ('cb000001-0003-1111-1111-111111111111', NULL, 'ca000001-0003-1111-1111-111111111111', 'LOT-WTR-USP-01', 'WFI-LOOP-01', 500, 'L', NOW() - INTERVAL '2 days', NOW() + INTERVAL '28 days', 'RELEASED', NOW(), NULL, $1, $2)
+        ON CONFLICT (id) DO UPDATE SET plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
+      `, [plantId, orgId]);
 
       await this.pool.query(`
         INSERT INTO public.inventory_balances (id, product_id, lot_number, quantity, wip_status, location_code, created_at, updated_at, plant_id)
@@ -322,10 +366,10 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
       // 13. BOM
       await this.pool.query(`
-        INSERT INTO public.bom_header (bom_id, parent_material, revision, effective_from, effective_to, status)
-        VALUES ('BOM-API-001', 'API-INT-X', 'A', '2026-01-01', NULL, 'RELEASED')
-        ON CONFLICT (bom_id) DO NOTHING
-      `);
+        INSERT INTO public.bom_header (bom_id, parent_material, revision, effective_from, effective_to, status, plant_id, organization_id)
+        VALUES ('BOM-API-001', 'API-INT-X', 'A', '2026-01-01', NULL, 'RELEASED', $1, $2)
+        ON CONFLICT (bom_id) DO UPDATE SET plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
+      `, [plantId, orgId]);
 
       await this.pool.query(`
         INSERT INTO public.bom_component (id, bom_id, line_no, parent_material, component_material, component_type, qty, uom)
@@ -338,10 +382,10 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
       // 14. Routing
       await this.pool.query(`
-        INSERT INTO public.routing_header (routing_id, material_code, revision, description, status)
-        VALUES ('RT-API-001', 'API-INT-X', 'A', '13-Step GMP Liquid-Liquid Extraction Train', 'RELEASED')
-        ON CONFLICT (routing_id) DO NOTHING
-      `);
+        INSERT INTO public.routing_header (routing_id, material_code, revision, description, status, plant_id, organization_id)
+        VALUES ('RT-API-001', 'API-INT-X', 'A', '13-Step GMP Liquid-Liquid Extraction Train', 'RELEASED', $1, $2)
+        ON CONFLICT (routing_id) DO UPDATE SET plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
+      `, [plantId, orgId]);
 
       await this.pool.query(`
         INSERT INTO public.routing_operation (id, routing_id, operation_no, operation_code, operation_name, work_center, machine_code)
@@ -370,7 +414,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       } else {
         await this.pool.query(`
           INSERT INTO public.batch_recipes (
-            id, product_id, recipe_code, recipe_name, version, master_formula, bom, process_instructions, planned_yield_pct, status, created_by, created_at, evidence_requirements
+            id, product_id, recipe_code, recipe_name, version, master_formula, bom, process_instructions, planned_yield_pct, status, created_by, created_at, evidence_requirements, plant_id, organization_id
           )
           VALUES (
             $1, $2, 'RCP-API-LLE-001', 'Liquid–Liquid Extraction Process Recipe for API Intermediate X', 'A',
@@ -404,8 +448,8 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
               {"parameter": "Residual solvent / assay", "target": "99.4%", "range": ">= 98.5%", "whyItMatters": "Supports API-intermediate quality assessment"}
             ]}'
           )
-          ON CONFLICT (id) DO NOTHING
-        `, [recipeId, productId]);
+          ON CONFLICT (id) DO UPDATE SET plant_id = $3, organization_id = $4
+        `, [recipeId, productId, plantId, orgId]);
       }
 
       // 16. Work Order: WO-API-2026-001
@@ -422,7 +466,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
             planned_start, planned_end, actual_start, actual_end, status,
             created_by, created_at, updated_at, plant_id, revision, recipe_id,
             evidence_snapshot, reviewed_snapshot, completed_by, reviewed_by,
-            shortfall_approval, legacy_unverified
+            shortfall_approval, legacy_unverified, organization_id
           )
           VALUES (
             '80111111-0008-1111-1111-111111111111',
@@ -431,10 +475,10 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
             NOW() - INTERVAL '1 day', NOW() + INTERVAL '2 days', NOW() - INTERVAL '6 hours', NULL, 'IN_PROGRESS',
             '11111111-1111-1111-1111-111111111111', NOW(), NOW(),
             $2, 0, $3,
-            NULL, NULL, NULL, NULL, NULL, false
+            NULL, NULL, NULL, NULL, NULL, false, $4
           )
-          ON CONFLICT (id) DO UPDATE SET plant_id = $2, status = 'IN_PROGRESS'
-        `, [productId, plantId, recipeId]);
+          ON CONFLICT (id) DO UPDATE SET plant_id = $2, organization_id = $4, status = 'IN_PROGRESS'
+        `, [productId, plantId, recipeId, orgId]);
       }
 
       console.log('🎉 Pharma Liquid-Liquid Extraction Plant, operations, and users fully ensured & linked!');

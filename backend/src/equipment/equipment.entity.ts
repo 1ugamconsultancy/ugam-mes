@@ -6,6 +6,12 @@ export class EquipmentCalibration {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ name: 'plant_id', type: 'uuid', nullable: true })
+  plantId: string;
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
+
   @Column({ name: 'machine_id', type: 'uuid' })
   machineId: string;
 
@@ -36,6 +42,12 @@ export class EquipmentCalibration {
 export class EquipmentQualification {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'plant_id', type: 'uuid', nullable: true })
+  plantId: string;
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
 
   @Column({ name: 'machine_id', type: 'uuid' })
   machineId: string;
@@ -70,6 +82,12 @@ export class EquipmentQualification {
 export class EquipmentMaster {
   @Column({ name: 'equipment_id', primary: true, length: 50 })
   equipmentId: string;
+
+  @Column({ name: 'plant_id', type: 'uuid', nullable: true })
+  plantId: string;
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
 
   @Column({ name: 'equipment_name', length: 255 })
   equipmentName: string;

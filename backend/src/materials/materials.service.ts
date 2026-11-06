@@ -1,4 +1,4 @@
-import { currentPlant } from '../auth/access-context';
+import { currentPlant, currentAccess } from '../auth/access-context';
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, EntityManager, LessThanOrEqual } from 'typeorm';
@@ -62,7 +62,9 @@ export class MaterialsService {
    * @returns {Promise<MaterialMaster[]>} Array of material master entities with vendor relations populated.
    */
   async getMaterials(): Promise<MaterialMaster[]> {
-    return this.materialMasterRepo.find({ relations: ['vendor'] });
+    const actor = currentAccess();
+    const where = actor.role === 'SUPER_ADMIN' && !actor.plantId ? {} : { plantId: currentPlant() };
+    return this.materialMasterRepo.find({ where, relations: ['vendor'], order: { materialCode: 'ASC' } });
   }
 
   /**
@@ -75,10 +77,17 @@ export class MaterialsService {
    * @compliance IATF 16949 Engineering Change Management
    */
   async createMaterial(dto: Partial<MaterialMaster>): Promise<MaterialMaster> {
+    const actor = currentAccess();
     if (!dto.vendorId || dto.vendorId === '' || dto.vendorId === 'null' || dto.vendorId === 'undefined') {
       delete dto.vendorId;
     }
-    const material = this.materialMasterRepo.create(dto);
+    const plantId = dto.plantId || actor.plantId || currentPlant();
+    const organizationId = dto.organizationId || actor.organizationId || undefined;
+    const material = this.materialMasterRepo.create({
+      ...dto,
+      plantId,
+      organizationId,
+    });
     return this.materialMasterRepo.save(material);
   }
 
@@ -148,7 +157,9 @@ export class MaterialsService {
    * @returns {Promise<Vendor[]>} Array of registered vendor entities.
    */
   async getVendors(): Promise<Vendor[]> {
-    return this.vendorRepo.find();
+    const actor = currentAccess();
+    const where = actor.role === 'SUPER_ADMIN' && !actor.plantId ? {} : { plantId: currentPlant() };
+    return this.vendorRepo.find({ where, order: { vendorName: 'ASC' } });
   }
 
   /**
@@ -159,7 +170,14 @@ export class MaterialsService {
    * @returns {Promise<Vendor>} Saved vendor entity
    */
   async createVendor(dto: Partial<Vendor>): Promise<Vendor> {
-    const vendor = this.vendorRepo.create(dto);
+    const actor = currentAccess();
+    const plantId = dto.plantId || actor.plantId || currentPlant();
+    const organizationId = dto.organizationId || actor.organizationId || undefined;
+    const vendor = this.vendorRepo.create({
+      ...dto,
+      plantId,
+      organizationId,
+    });
     return this.vendorRepo.save(vendor);
   }
 
@@ -175,7 +193,9 @@ export class MaterialsService {
    * @returns {Promise<GoodsReceipt[]>} List of GRNs sorted by receiving event
    */
   async getGoodsReceipts(): Promise<GoodsReceipt[]> {
-    return this.grnRepo.find({ relations: ['vendor', 'material'] });
+    const actor = currentAccess();
+    const where = actor.role === 'SUPER_ADMIN' && !actor.plantId ? {} : { plantId: currentPlant() };
+    return this.grnRepo.find({ where, relations: ['vendor', 'material'], order: { receivedAt: 'DESC' } });
   }
 
   /**
@@ -191,9 +211,25 @@ export class MaterialsService {
    */
   async createGoodsReceipt(userId: string, dto: any): Promise<GoodsReceipt> {
     if(!Number.isFinite(Number(dto.quantityReceived)) || Number(dto.quantityReceived)<=0) throw new BadRequestException('Positive received quantity required');
+    const actor = currentAccess();
+    const plantId = dto.plantId || actor.plantId || currentPlant();
+    const organizationId = dto.organizationId || actor.organizationId || undefined;
     return this.dataSource.transaction(async m=>{
       const repo=m.getRepository(GoodsReceipt);
-      const grn=repo.create({grnNumber:dto.grnNumber,vendorId:dto.vendorId,materialId:dto.materialId,batchNumber:dto.batchNumber,quantityReceived:dto.quantityReceived,manufacturingDate:dto.manufacturingDate,expiryDate:dto.expiryDate,coaAttachment:dto.coaAttachment,status:dto.status||'PENDING_QC',receivedBy:userId});
+      const grn=repo.create({
+        plantId,
+        organizationId,
+        grnNumber:dto.grnNumber,
+        vendorId:dto.vendorId,
+        materialId:dto.materialId,
+        batchNumber:dto.batchNumber,
+        quantityReceived:dto.quantityReceived,
+        manufacturingDate:dto.manufacturingDate,
+        expiryDate:dto.expiryDate,
+        coaAttachment:dto.coaAttachment,
+        status:dto.status||'PENDING_QC',
+        receivedBy:userId
+      });
       const saved=await repo.save(grn);
       if(saved.status==='RELEASED') await this.createBatchFromGrn(saved,m,dto.storageLocationId);
       return saved;
@@ -217,7 +253,7 @@ export class MaterialsService {
     if(!location) throw new BadRequestException('Select a storage location in a reviewed warehouse for this plant');
     const material=await m.getRepository(MaterialMaster).findOneBy({id:grn.materialId});
     if(!material) throw new NotFoundException('Material not found');
-    const batch=await batches.save(batches.create({goodsReceiptId:grn.id,materialId:grn.materialId,batchNumber:'LOT-'+grn.batchNumber,supplierBatch:grn.batchNumber,quantity:grn.quantityReceived,uom:material.uom,manufacturingDate:grn.manufacturingDate,expiryDate:grn.expiryDate,status:'RELEASED'}));
+    const batch=await batches.save(batches.create({plantId:grn.plantId||currentPlant(),organizationId:grn.organizationId,goodsReceiptId:grn.id,materialId:grn.materialId,batchNumber:'LOT-'+grn.batchNumber,supplierBatch:grn.batchNumber,quantity:grn.quantityReceived,uom:material.uom,manufacturingDate:grn.manufacturingDate,expiryDate:grn.expiryDate,status:'RELEASED'}));
     await m.getRepository(MaterialInventory).save({materialBatchId:batch.id,storageLocationId:location.id,quantity:batch.quantity});
     await m.getRepository(MaterialTransaction).save({materialBatchId:batch.id,txType:'RECEIPT',quantity:batch.quantity,toLocationId:location.id,performedBy:grn.receivedBy,reason:'Recorded GRN release'});
   }
@@ -578,8 +614,11 @@ export class MaterialsService {
     } catch (e) {}
 
     // 1. Try finding by batch_number
+    const actor = currentAccess();
+    const plantFilter = actor.role === 'SUPER_ADMIN' && !actor.plantId ? {} : { plantId: currentPlant() };
+
     const batch = await this.batchRepo.findOne({
-      where: [{ batchNumber: targetLot }, { batchNumber: query.trim() }],
+      where: [{ batchNumber: targetLot, ...plantFilter }, { batchNumber: query.trim(), ...plantFilter }],
       relations: ['material', 'material.vendor', 'goodsReceipt'],
     });
 
@@ -615,13 +654,13 @@ export class MaterialsService {
 
     // 2. Try finding by material_code
     const material = await this.materialMasterRepo.findOne({
-      where: [{ materialCode: targetSku }, { materialCode: query.trim() }],
+      where: [{ materialCode: targetSku, ...plantFilter }, { materialCode: query.trim(), ...plantFilter }],
       relations: ['vendor'],
     });
 
     if (material) {
       const activeBatches = await this.batchRepo.find({
-        where: { materialId: material.id },
+        where: { materialId: material.id, ...plantFilter },
       });
       return {
         matchType: 'MATERIAL',

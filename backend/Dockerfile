@@ -17,5 +17,7 @@ COPY --from=builder /app/uploads ./uploads
 COPY setup_ugam_mes_db.sql ./setup_ugam_mes_db.sql
 COPY src/database/pharma-seed.sql ./src/database/pharma-seed.sql
 COPY src/database/pharma-seed.sql ./pharma-seed.sql
+COPY src/database/migration_master_data_plant_scoping.sql ./migration_master_data_plant_scoping.sql
+COPY src/database/migration_master_data_plant_scoping.sql ./src/database/migration_master_data_plant_scoping.sql
 EXPOSE 3000
 CMD ["node", "dist/main"]

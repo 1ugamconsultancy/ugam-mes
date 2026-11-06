@@ -774,7 +774,15 @@ export default function MaterialManagement() {
       {/* ========================================================================= */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div className="flex flex-col justify-start items-start text-left">
-          <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">Material & Warehouse Management</h1>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">Material & Warehouse Management</h1>
+            {user?.plantName && (
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25 flex items-center gap-1">
+                <span>🏭</span>
+                <span>{user.plantName}</span>
+              </span>
+            )}
+          </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Maintain raw material master lists, execute incoming goods receipt note audits (GRN), and perform double-signature weighing allocations.
           </p>

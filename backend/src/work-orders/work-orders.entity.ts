@@ -5,6 +5,12 @@ export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ name: 'plant_id', type: 'uuid', nullable: true })
+  plantId: string;
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
+
   @Column({ length: 100, unique: true })
   sku: string;
 
@@ -25,6 +31,9 @@ export class Product {
 export class WorkOrder {
   @Column({ name: 'plant_id', type: 'uuid' })
   plantId: string;
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
 
   @PrimaryGeneratedColumn('uuid')
   id: string;

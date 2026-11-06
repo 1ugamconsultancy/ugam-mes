@@ -1344,10 +1344,16 @@ export default function Recipes() {
       {/* ========================================================================= */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-[#1F3A5C] pb-3 flex-shrink-0">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
               Recipes & Bill of Materials (BOM)
             </h1>
+            {user?.plantName && (
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25 flex items-center gap-1">
+                <span>🏭</span>
+                <span>{user.plantName}</span>
+              </span>
+            )}
             <span className="px-2 py-0.5 rounded text-[10px] font-bold border bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/25">
               GAMP 5 / IATF 16949
             </span>

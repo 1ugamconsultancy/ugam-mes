@@ -10,6 +10,12 @@ export class BatchRecipe {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ name: 'plant_id', type: 'uuid', nullable: true })
+  plantId: string;
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
+
   @Column({ name: 'product_id', type: 'uuid' })
   productId: string;
 

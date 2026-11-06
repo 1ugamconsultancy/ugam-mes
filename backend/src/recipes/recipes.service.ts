@@ -1,3 +1,4 @@
+import { currentPlant, currentAccess } from '../auth/access-context';
 import { validateRequirements } from '../work-orders/workflow-policy';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -51,14 +52,19 @@ export class RecipesService {
   ) {}
 
   async getRecipes(): Promise<BatchRecipe[]> {
+    const actor = currentAccess();
+    const where = actor.role === 'SUPER_ADMIN' && !actor.plantId ? {} : { plantId: currentPlant() };
     return this.recipeRepo.find({
+      where,
       relations: ['product', 'creator'],
       order: { recipeCode: 'ASC', version: 'DESC', createdAt: 'DESC' }
     });
   }
 
   async getProducts(): Promise<Product[]> {
-    return this.productRepo.find({ order: { sku: 'ASC' } });
+    const actor = currentAccess();
+    const where = actor.role === 'SUPER_ADMIN' && !actor.plantId ? {} : { plantId: currentPlant() };
+    return this.productRepo.find({ where, order: { sku: 'ASC' } });
   }
 
   async getRecipeById(id: string): Promise<BatchRecipe> {
@@ -97,7 +103,12 @@ export class RecipesService {
       }
     }
 
+    const actor = currentAccess();
+    const plantId = dto.plantId || actor.plantId || currentPlant();
+    const organizationId = dto.organizationId || actor.organizationId || undefined;
     const newRecipe = this.recipeRepo.create({
+      plantId,
+      organizationId,
       productId: dto.productId,
       recipeCode: dto.recipeCode,
       recipeName: dto.recipeName,
@@ -136,7 +147,12 @@ export class RecipesService {
     }
 
     // 3. Create and release new revision
+    const actor = currentAccess();
+    const plantId = dto.plantId || existingActive?.plantId || actor.plantId || currentPlant();
+    const organizationId = dto.organizationId || existingActive?.organizationId || actor.organizationId || undefined;
     const revised = this.recipeRepo.create({
+      plantId,
+      organizationId,
       productId: dto.productId || existingActive?.productId,
       recipeCode: recipeCode,
       recipeName: recipeName || existingActive?.recipeName || recipeCode,
@@ -154,9 +170,14 @@ export class RecipesService {
   }
 
   async getAllBoms(): Promise<any[]> {
+    const actor = currentAccess();
+    const isGlobal = actor.role === 'SUPER_ADMIN' && !actor.plantId;
+    const filter = isGlobal ? '' : 'WHERE bh.plant_id = $1';
+    const params = isGlobal ? [] : [currentPlant()];
     return this.recipeRepo.query(`
       SELECT 
         bh.bom_id, bh.parent_material, bh.revision, bh.effective_from, bh.effective_to, bh.status,
+        bh.plant_id, bh.organization_id,
         mm_parent.material_name as parent_name,
         mm_parent.image_path as parent_image,
         mm_parent.material_type as parent_type,
@@ -167,8 +188,9 @@ export class RecipesService {
       LEFT JOIN material_master mm_parent ON bh.parent_material = mm_parent.material_code
       LEFT JOIN bom_component bc ON bh.bom_id = bc.bom_id AND bh.revision = bc.revision
       LEFT JOIN material_master mm_comp ON bc.component_material = mm_comp.material_code
+      ${filter}
       ORDER BY bh.bom_id ASC, bh.revision DESC, bc.line_no ASC
-    `);
+    `, params);
   }
 
   // Create New BOM
@@ -180,13 +202,16 @@ export class RecipesService {
     const components = dto.components || [];
     const effective_from = dto.effective_from || dto.effectiveFrom || new Date().toISOString().split('T')[0];
 
+    const actor = currentAccess();
+    const plantId = dto.plant_id || dto.plantId || actor.plantId || currentPlant();
+    const organizationId = dto.organization_id || dto.organizationId || actor.organizationId || null;
     // 1. Insert into bom_header
     await this.recipeRepo.query(
-      `INSERT INTO bom_header (bom_id, parent_material, revision, effective_from, status)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO bom_header (bom_id, parent_material, revision, effective_from, status, plant_id, organization_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        ON CONFLICT (bom_id, revision) DO UPDATE 
-       SET parent_material = EXCLUDED.parent_material, effective_from = EXCLUDED.effective_from, status = EXCLUDED.status`,
-      [bom_id, parent_material, revision, effective_from, status]
+       SET parent_material = EXCLUDED.parent_material, effective_from = EXCLUDED.effective_from, status = EXCLUDED.status, plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id`,
+      [bom_id, parent_material, revision, effective_from, status, plantId, organizationId]
     );
 
     // 2. Clear and insert bom_components for this bom_id and revision
@@ -238,11 +263,14 @@ export class RecipesService {
 
     const parentMat = parent_material || activeHeader?.parent_material;
 
+    const actor = currentAccess();
+    const plantId = dto.plant_id || dto.plantId || activeHeader?.plant_id || actor.plantId || currentPlant();
+    const organizationId = dto.organization_id || dto.organizationId || activeHeader?.organization_id || actor.organizationId || null;
     // 3. Insert new BOM revision as RELEASED
     await this.recipeRepo.query(
-      `INSERT INTO bom_header (bom_id, parent_material, revision, effective_from, status)
-       VALUES ($1, $2, $3, $4, 'RELEASED')`,
-      [bom_id, parentMat, nextRev, effective_from]
+      `INSERT INTO bom_header (bom_id, parent_material, revision, effective_from, status, plant_id, organization_id)
+       VALUES ($1, $2, $3, $4, 'RELEASED', $5, $6)`,
+      [bom_id, parentMat, nextRev, effective_from, plantId, organizationId]
     );
 
     // 4. Insert components for new revision

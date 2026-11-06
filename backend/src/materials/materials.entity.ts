@@ -7,6 +7,12 @@ export class Vendor {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ name: 'plant_id', type: 'uuid', nullable: true })
+  plantId: string;
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
+
   @Column({ name: 'vendor_code', length: 50, unique: true })
   vendorCode: string;
 
@@ -33,6 +39,12 @@ export class Vendor {
 export class MaterialMaster {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'plant_id', type: 'uuid', nullable: true })
+  plantId: string;
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
 
   @Column({ name: 'material_code', length: 100, unique: true })
   materialCode: string;
@@ -78,6 +90,7 @@ export class MaterialMaster {
 @Entity('warehouses')
 export class Warehouse {
  @Column({name:'plant_id',type:'uuid',nullable:true}) plantId:string;
+  @Column({name:'organization_id',type:'uuid',nullable:true}) organizationId:string;
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -126,6 +139,12 @@ export class StorageLocation {
 export class GoodsReceipt {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'plant_id', type: 'uuid', nullable: true })
+  plantId: string;
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
 
   @Column({ name: 'grn_number', length: 50, unique: true })
   grnNumber: string;
@@ -183,6 +202,12 @@ export class GoodsReceipt {
 export class MaterialBatch {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'plant_id', type: 'uuid', nullable: true })
+  plantId: string;
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
 
   @Column({ name: 'goods_receipt_id', type: 'uuid', nullable: true })
   goodsReceiptId: string;

@@ -85,6 +85,7 @@ export class WorkOrdersService {
 
     const newWO = this.workOrderRepository.create({
       plantId: currentPlant(),
+      organizationId: currentAccess().organizationId || undefined,
       createdBy: currentAccess().sub,
       woNumber: dto.woNumber,
       productId: dto.productId,

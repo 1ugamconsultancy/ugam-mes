@@ -1,5 +1,5 @@
 import { provenance } from '../common/provenance';
-import { currentPlant } from '../auth/access-context';
+import { currentPlant, currentAccess } from '../auth/access-context';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -20,14 +20,27 @@ export class EquipmentService {
   ) {}
 
   async getMasterEquipment(): Promise<EquipmentMaster[]> {
-    return this.equipmentMasterRepo.query(`SELECT em.* FROM equipment_master em JOIN machines m ON m.code=em.equipment_id JOIN lines l ON l.id=m.line_id JOIN areas a ON a.id=l.area_id WHERE a.plant_id=$1 ORDER BY em.equipment_id`, [currentPlant()]).then(rows => rows.map(row => this.equipmentMasterRepo.create({ equipmentId: row.equipment_id, equipmentName: row.equipment_name, workCenter: row.work_center, equipmentType: row.equipment_type, manufacturer: row.manufacturer, model: row.model, capacityPerShift: row.capacity_per_shift, oeeApplicable: row.oee_applicable, status: row.status }))); 
+    const actor = currentAccess();
+    if (actor.role === 'SUPER_ADMIN' && !actor.plantId) {
+      return this.equipmentMasterRepo.find({ order: { equipmentId: 'ASC' } });
+    }
+    const plantId = currentPlant();
+    return this.equipmentMasterRepo.find({
+      where: { plantId },
+      order: { equipmentId: 'ASC' }
+    });
   }
 
   async createMasterEquipment(dto: Partial<EquipmentMaster> & { lineId?: string }): Promise<EquipmentMaster> {
     if (!dto.lineId) throw new NotFoundException('Select a production line');
     const lines = await this.machineRepo.query('SELECT l.id FROM lines l JOIN areas a ON a.id=l.area_id WHERE l.id=$1 AND a.plant_id=$2', [dto.lineId, currentPlant()]);
     if (!lines.length) throw new NotFoundException('Line not found');
+    const actor = currentAccess();
+    const plantId = dto.plantId || actor.plantId || currentPlant();
+    const organizationId = dto.organizationId || actor.organizationId || undefined;
     const eq = this.equipmentMasterRepo.create({
+      plantId,
+      organizationId,
       equipmentId: dto.equipmentId?.toUpperCase().trim(),
       equipmentName: dto.equipmentName?.trim(),
       workCenter: dto.workCenter?.toUpperCase().trim() || 'WC-GEN',
@@ -107,13 +120,19 @@ export class EquipmentService {
   }
 
   async getCalibrations(): Promise<EquipmentCalibration[]> {
-    return this.calibrationRepo.find({ where: { machine: { line: { area: { plantId: currentPlant() } } } }, relations: ['machine'] });
+    const actor = currentAccess();
+    const where = actor.role === 'SUPER_ADMIN' && !actor.plantId ? {} : { plantId: currentPlant() };
+    return this.calibrationRepo.find({ where, relations: ['machine'] });
   }
 
   async addCalibration(dto: Partial<EquipmentCalibration>): Promise<EquipmentCalibration> {
     const machine = await this.machineRepo.findOne({ where: { id: dto.machineId, line: { area: { plantId: currentPlant() } } } });
     if (!machine) throw new NotFoundException('Machine not found');
+    const actor = currentAccess();
+    const plantId = machine.line?.area?.plantId || currentPlant();
     const cal = this.calibrationRepo.create({
+      plantId,
+      organizationId: actor.organizationId || undefined,
       machineId: dto.machineId,
       calibrationDate: new Date(dto.calibrationDate),
       nextCalibrationDue: new Date(dto.nextCalibrationDue),
@@ -125,13 +144,19 @@ export class EquipmentService {
   }
 
   async getQualifications(): Promise<EquipmentQualification[]> {
-    return this.qualificationRepo.find({ where: { machine: { line: { area: { plantId: currentPlant() } } } }, relations: ['machine'] });
+    const actor = currentAccess();
+    const where = actor.role === 'SUPER_ADMIN' && !actor.plantId ? {} : { plantId: currentPlant() };
+    return this.qualificationRepo.find({ where, relations: ['machine'] });
   }
 
   async addQualification(dto: Partial<EquipmentQualification>): Promise<EquipmentQualification> {
     const machine = await this.machineRepo.findOne({ where: { id: dto.machineId, line: { area: { plantId: currentPlant() } } } });
     if (!machine) throw new NotFoundException('Machine not found');
+    const actor = currentAccess();
+    const plantId = machine.line?.area?.plantId || currentPlant();
     const qual = this.qualificationRepo.create({
+      plantId,
+      organizationId: actor.organizationId || undefined,
       machineId: dto.machineId,
       qualificationType: dto.qualificationType,
       qualificationDate: new Date(dto.qualificationDate),
