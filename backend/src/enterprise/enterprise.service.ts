@@ -18,6 +18,7 @@ import { Organization } from './organization.entity';
 import { PlantThemeSetting, ThemeColors } from './plant-theme.entity';
 import { Plant } from '../plants/plants.entity';
 import { AuthService } from '../auth/auth.service';
+import { DatabaseService } from '../database/database.service';
 import { User } from '../auth/user.entity';
 
 /**
@@ -37,6 +38,7 @@ export class EnterpriseService {
     @InjectRepository(User)
     private userRepo: Repository<User>,
     private authService: AuthService,
+    private databaseService?: DatabaseService,
   ) {}
 
   private rejectArchiveFields(dto: any) {
@@ -56,7 +58,7 @@ export class EnterpriseService {
   private async mutation(action: (service: EnterpriseService) => Promise<any>) {
     return this.orgRepo.manager.transaction(async manager => {
       await manager.query('SELECT pg_advisory_xact_lock(180026,1)');
-      const scoped = new EnterpriseService(manager.getRepository(Organization), manager.getRepository(Plant), manager.getRepository(PlantThemeSetting), manager.getRepository(User), this.authService);
+      const scoped = new EnterpriseService(manager.getRepository(Organization), manager.getRepository(Plant), manager.getRepository(PlantThemeSetting), manager.getRepository(User), this.authService, this.databaseService);
       return action(scoped);
     });
   }
@@ -472,4 +474,10 @@ export class EnterpriseService {
         }),
     }));
   }
+
+  async seedPharmaPlant() {
+    await this.databaseService.autoEnsurePharmaPlantAndUsers();
+    return { success: true, message: 'Pharma Liquid-Liquid Extraction Plant, operations, and users successfully synchronized' };
+  }
+
 }

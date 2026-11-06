@@ -55,24 +55,24 @@ ON CONFLICT (id) DO NOTHING;
 -- 11. Materials Master
 INSERT INTO public.material_master (id, material_code, material_name, material_type, category, uom, manufacturer, vendor_id, shelf_life_days, storage_conditions, image_path, status, created_at)
 VALUES
-('m0000001-0001-1111-1111-111111111111', 'INT-CRUDE-001', 'Crude API Reaction Mixture', 'INTERMEDIATE', 'RAW_PHARMA', 'KG', 'AuraBio Synthesis Unit', NULL, 180, '2-8°C Controlled Cold Room', '', 'APPROVED', NOW()),
-('m0000001-0002-1111-1111-111111111111', 'RM-SOLV-001', 'Ethyl Acetate Solvent USP', 'RAW_MATERIAL', 'SOLVENT', 'L', 'Merck Millipore Bio', NULL, 730, 'Flammable Storage Cabinet 15-25°C', '', 'APPROVED', NOW()),
-('m0000001-0003-1111-1111-111111111111', 'RM-WTR-001', 'Purified Water USP', 'RAW_MATERIAL', 'WATER', 'L', 'In-House Generation Loop', NULL, 30, 'Ambient Loop WFI Circulation', '', 'APPROVED', NOW()),
-('m0000001-0004-1111-1111-111111111111', 'RM-SALT-001', 'Sodium Chloride Reagent USP', 'RAW_MATERIAL', 'SALT', 'KG', 'Avantor Performance Materials', NULL, 1095, 'Dry Ambient Storage < 60% RH', '', 'APPROVED', NOW())
+('ca000001-0001-1111-1111-111111111111', 'INT-CRUDE-001', 'Crude API Reaction Mixture', 'INTERMEDIATE', 'RAW_PHARMA', 'KG', 'AuraBio Synthesis Unit', NULL, 180, '2-8°C Controlled Cold Room', '', 'APPROVED', NOW()),
+('ca000001-0002-1111-1111-111111111111', 'RM-SOLV-001', 'Ethyl Acetate Solvent USP', 'RAW_MATERIAL', 'SOLVENT', 'L', 'Merck Millipore Bio', NULL, 730, 'Flammable Storage Cabinet 15-25°C', '', 'APPROVED', NOW()),
+('ca000001-0003-1111-1111-111111111111', 'RM-WTR-001', 'Purified Water USP', 'RAW_MATERIAL', 'WATER', 'L', 'In-House Generation Loop', NULL, 30, 'Ambient Loop WFI Circulation', '', 'APPROVED', NOW()),
+('ca000001-0004-1111-1111-111111111111', 'RM-SALT-001', 'Sodium Chloride Reagent USP', 'RAW_MATERIAL', 'SALT', 'KG', 'Avantor Performance Materials', NULL, 1095, 'Dry Ambient Storage < 60% RH', '', 'APPROVED', NOW())
 ON CONFLICT (material_code) DO NOTHING;
 
 -- 12. Material Batches & Inventory
 INSERT INTO public.material_batches (id, goods_receipt_id, material_id, batch_number, supplier_batch, quantity, uom, manufacturing_date, expiry_date, status, created_at, heat_number)
 VALUES
-('mb000001-0001-1111-1111-111111111111', NULL, 'm0000001-0001-1111-1111-111111111111', 'LOT-API-CRUDE-04', 'SPL-CRD-889', 120, 'KG', NOW() - INTERVAL '10 days', NOW() + INTERVAL '170 days', 'RELEASED', NOW(), NULL),
-('mb000001-0002-1111-1111-111111111111', NULL, 'm0000001-0002-1111-1111-111111111111', 'LOT-EA-SOLV-22', 'MRK-EA-5541', 250, 'L', NOW() - INTERVAL '30 days', NOW() + INTERVAL '700 days', 'RELEASED', NOW(), NULL),
-('mb000001-0003-1111-1111-111111111111', NULL, 'm0000001-0003-1111-1111-111111111111', 'LOT-WTR-USP-01', 'WFI-LOOP-01', 500, 'L', NOW() - INTERVAL '2 days', NOW() + INTERVAL '28 days', 'RELEASED', NOW(), NULL)
+('cb000001-0001-1111-1111-111111111111', NULL, 'ca000001-0001-1111-1111-111111111111', 'LOT-API-CRUDE-04', 'SPL-CRD-889', 120, 'KG', NOW() - INTERVAL '10 days', NOW() + INTERVAL '170 days', 'RELEASED', NOW(), NULL),
+('cb000001-0002-1111-1111-111111111111', NULL, 'ca000001-0002-1111-1111-111111111111', 'LOT-EA-SOLV-22', 'MRK-EA-5541', 250, 'L', NOW() - INTERVAL '30 days', NOW() + INTERVAL '700 days', 'RELEASED', NOW(), NULL),
+('cb000001-0003-1111-1111-111111111111', NULL, 'ca000001-0003-1111-1111-111111111111', 'LOT-WTR-USP-01', 'WFI-LOOP-01', 500, 'L', NOW() - INTERVAL '2 days', NOW() + INTERVAL '28 days', 'RELEASED', NOW(), NULL)
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.inventory_balances (id, product_id, lot_number, quantity, wip_status, location_code, created_at, updated_at, plant_id)
 VALUES
-('ib000001-0001-1111-1111-111111111111', '30111111-0008-1111-1111-111111111111', 'LOT-API-CRUDE-04', 120, 'RELEASED', 'LOC-PHARMA-01', NOW(), NOW(), 'a0000000-0003-3333-3333-333333333333'),
-('ib000001-0002-1111-1111-111111111111', '30111111-0008-1111-1111-111111111111', 'LOT-EA-SOLV-22', 250, 'RELEASED', 'LOC-PHARMA-01', NOW(), NOW(), 'a0000000-0003-3333-3333-333333333333')
+('db000001-0001-1111-1111-111111111111', '30111111-0008-1111-1111-111111111111', 'LOT-API-CRUDE-04', 120, 'RELEASED', 'LOC-PHARMA-01', NOW(), NOW(), 'a0000000-0003-3333-3333-333333333333'),
+('db000001-0002-1111-1111-111111111111', '30111111-0008-1111-1111-111111111111', 'LOT-EA-SOLV-22', 250, 'RELEASED', 'LOC-PHARMA-01', NOW(), NOW(), 'a0000000-0003-3333-3333-333333333333')
 ON CONFLICT (id) DO NOTHING;
 
 -- 13. BOM Header & Components
@@ -94,19 +94,19 @@ ON CONFLICT (routing_id) DO NOTHING;
 
 INSERT INTO public.routing_operation (id, routing_id, operation_no, operation_code, operation_name, work_center, machine_code)
 VALUES
-('ro000001-0001-1111-1111-111111111111', 'RT-API-001', 1, 'OP-01', 'Verify API intermediate and solvent lots', 'WC-API-EXT', 'EX-101'),
-('ro000001-0002-1111-1111-111111111111', 'RT-API-001', 2, 'OP-02', 'Verify extraction vessel', 'WC-API-EXT', 'EX-101'),
-('ro000001-0003-1111-1111-111111111111', 'RT-API-001', 3, 'OP-03', 'Charge API intermediate solution', 'WC-API-EXT', 'EX-101'),
-('ro000001-0004-1111-1111-111111111111', 'RT-API-001', 4, 'OP-04', 'Add extraction solvent', 'WC-API-EXT', 'EX-101'),
-('ro000001-0005-1111-1111-111111111111', 'RT-API-001', 5, 'OP-05', 'Mix phases', 'WC-API-EXT', 'EX-101'),
-('ro000001-0006-1111-1111-111111111111', 'RT-API-001', 6, 'OP-06', 'Stop mixing and allow settling', 'WC-API-EXT', 'EX-101'),
-('ro000001-0007-1111-1111-111111111111', 'RT-API-001', 7, 'OP-07', 'Verify interface formation', 'WC-API-EXT', 'EX-101'),
-('ro000001-0008-1111-1111-111111111111', 'RT-API-001', 8, 'OP-08', 'Verify aqueous phase conductivity', 'WC-API-EXT', 'EX-101'),
-('ro000001-0009-1111-1111-111111111111', 'RT-API-001', 9, 'OP-09', 'Verify organic phase / carryover', 'WC-API-EXT', 'EX-101'),
-('ro000001-0010-1111-1111-111111111111', 'RT-API-001', 10, 'OP-10', 'Collect designated API-containing phase', 'WC-API-EXT', 'EX-101'),
-('ro000001-0011-1111-1111-111111111111', 'RT-API-001', 11, 'OP-11', 'Perform final in-process QC', 'WC-API-EXT', 'EX-101'),
-('ro000001-0012-1111-1111-111111111111', 'RT-API-001', 12, 'OP-12', 'QA review and approval', 'WC-API-EXT', 'EX-101'),
-('ro000001-0013-1111-1111-111111111111', 'RT-API-001', 13, 'OP-13', 'Transfer to next processing stage', 'WC-API-EXT', 'EX-101')
+('ea000001-0001-1111-1111-111111111111', 'RT-API-001', 1, 'OP-01', 'Verify API intermediate and solvent lots', 'WC-API-EXT', 'EX-101'),
+('ea000001-0002-1111-1111-111111111111', 'RT-API-001', 2, 'OP-02', 'Verify extraction vessel', 'WC-API-EXT', 'EX-101'),
+('ea000001-0003-1111-1111-111111111111', 'RT-API-001', 3, 'OP-03', 'Charge API intermediate solution', 'WC-API-EXT', 'EX-101'),
+('ea000001-0004-1111-1111-111111111111', 'RT-API-001', 4, 'OP-04', 'Add extraction solvent', 'WC-API-EXT', 'EX-101'),
+('ea000001-0005-1111-1111-111111111111', 'RT-API-001', 5, 'OP-05', 'Mix phases', 'WC-API-EXT', 'EX-101'),
+('ea000001-0006-1111-1111-111111111111', 'RT-API-001', 6, 'OP-06', 'Stop mixing and allow settling', 'WC-API-EXT', 'EX-101'),
+('ea000001-0007-1111-1111-111111111111', 'RT-API-001', 7, 'OP-07', 'Verify interface formation', 'WC-API-EXT', 'EX-101'),
+('ea000001-0008-1111-1111-111111111111', 'RT-API-001', 8, 'OP-08', 'Verify aqueous phase conductivity', 'WC-API-EXT', 'EX-101'),
+('ea000001-0009-1111-1111-111111111111', 'RT-API-001', 9, 'OP-09', 'Verify organic phase / carryover', 'WC-API-EXT', 'EX-101'),
+('ea000001-0010-1111-1111-111111111111', 'RT-API-001', 10, 'OP-10', 'Collect designated API-containing phase', 'WC-API-EXT', 'EX-101'),
+('ea000001-0011-1111-1111-111111111111', 'RT-API-001', 11, 'OP-11', 'Perform final in-process QC', 'WC-API-EXT', 'EX-101'),
+('ea000001-0012-1111-1111-111111111111', 'RT-API-001', 12, 'OP-12', 'QA review and approval', 'WC-API-EXT', 'EX-101'),
+('ea000001-0013-1111-1111-111111111111', 'RT-API-001', 13, 'OP-13', 'Transfer to next processing stage', 'WC-API-EXT', 'EX-101')
 ON CONFLICT (id) DO NOTHING;
 
 -- 15. Batch Recipe: RCP-API-LLE-001 with 13 Steps and Critical Process Parameters

@@ -232,5 +232,12 @@ export class EnterpriseController {
   async updateUserAllocation(@Param('id') id: string, @Body() dto: any) {
     return this.enterpriseService.updateUserAllocation(id, dto);
   }
-}
 
+  @UseGuards(AuthGuard)
+  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Post('seed-pharma')
+  async seedPharmaPlant() {
+    return this.enterpriseService.seedPharmaPlant();
+  }
+
+}
