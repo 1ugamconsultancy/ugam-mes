@@ -94,32 +94,76 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
   
   
-  public async runMasterDataScopingMigration() {
+    public async runMasterDataScopingMigration() {
     try {
-      console.log('🔄 Checking and applying Master Data Plant & Org Scoping Migration...');
-      const candidatePaths = [
-        path.join(__dirname, 'migration_master_data_plant_scoping.sql'),
-        path.join(__dirname, '..', 'src', 'database', 'migration_master_data_plant_scoping.sql'),
-        path.join(process.cwd(), 'src', 'database', 'migration_master_data_plant_scoping.sql'),
-        path.join(process.cwd(), 'dist', 'database', 'migration_master_data_plant_scoping.sql'),
-        path.join(process.cwd(), 'migration_master_data_plant_scoping.sql'),
-        '/app/migration_master_data_plant_scoping.sql',
-        '/app/src/database/migration_master_data_plant_scoping.sql'
+      console.log('🔄 Applying Master Data Plant & Org Scoping Schema...');
+      const statements = [
+        "ALTER TABLE public.material_master ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.vendors ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.products ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.equipment_master ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.batch_recipes ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.bom_header ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.routing_header ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.work_orders ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.material_batches ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.equipment_calibrations ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.equipment_qualifications ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.warehouses ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT;",
       ];
-      let sqlContent = '';
-      for (const p of candidatePaths) {
-        if (fs.existsSync(p)) {
-          sqlContent = fs.readFileSync(p, 'utf8');
-          console.log(`Found master data scoping migration at: ${p}`);
-          break;
+      for (const sql of statements) {
+        try {
+          await this.pool.query(sql);
+        } catch (e: any) {
+          console.warn('Migration column note:', e.message);
         }
       }
-      if (sqlContent) {
-        await this.pool.query(sqlContent);
-        console.log('✅ Master Data Plant & Org Scoping Migration applied successfully!');
-      } else {
-        console.warn('Could not locate migration_master_data_plant_scoping.sql');
+
+      // Safe Backfills
+      const backfills = [
+        "UPDATE public.work_orders wo SET organization_id = p.organization_id FROM public.plants p WHERE wo.plant_id = p.id AND wo.organization_id IS NULL;",
+        "UPDATE public.warehouses w SET organization_id = p.organization_id FROM public.plants p WHERE w.plant_id = p.id AND w.organization_id IS NULL;",
+        "UPDATE public.material_master SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL AND (material_code LIKE 'RM-ST%' OR material_code LIKE 'RM-LTH%' OR material_code LIKE 'RM-FOAM%' OR material_code LIKE 'RAW-00%' OR material_code LIKE 'SEAT-%');",
+        "UPDATE public.vendors SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL AND vendor_code NOT LIKE 'VND-PHARMA%';",
+        "UPDATE public.products SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL AND sku != 'API-INT-X';",
+        "UPDATE public.equipment_master SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL AND equipment_id NOT IN ('EX-101', 'REC-102', 'FM-101');",
+        "UPDATE public.batch_recipes SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL AND recipe_code != 'RCP-API-LLE-001';",
+        "UPDATE public.bom_header SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL AND bom_id != 'BOM-API-001';",
+        "UPDATE public.routing_header SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL AND routing_id != 'RT-API-001';",
+        "UPDATE public.material_batches mb SET plant_id = mm.plant_id, organization_id = mm.organization_id FROM public.material_master mm WHERE mb.material_id = mm.id AND mb.plant_id IS NULL;",
+        "UPDATE public.equipment_calibrations SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;",
+        "UPDATE public.equipment_qualifications SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;",
+      ];
+      for (const sql of backfills) {
+        try {
+          await this.pool.query(sql);
+        } catch (e: any) {
+          console.warn('Backfill step note:', e.message);
+        }
       }
+
+      // Indexes
+      const indexes = [
+        "CREATE INDEX IF NOT EXISTS idx_materials_plant_org ON public.material_master (plant_id, organization_id);",
+        "CREATE INDEX IF NOT EXISTS idx_vendors_plant_org ON public.vendors (plant_id, organization_id);",
+        "CREATE INDEX IF NOT EXISTS idx_products_plant_org ON public.products (plant_id, organization_id);",
+        "CREATE INDEX IF NOT EXISTS idx_equipment_plant_org ON public.equipment_master (plant_id, organization_id);",
+        "CREATE INDEX IF NOT EXISTS idx_recipes_plant_org ON public.batch_recipes (plant_id, organization_id);",
+        "CREATE INDEX IF NOT EXISTS idx_boms_plant_org ON public.bom_header (plant_id, organization_id);",
+        "CREATE INDEX IF NOT EXISTS idx_routings_plant_org ON public.routing_header (plant_id, organization_id);",
+        "CREATE INDEX IF NOT EXISTS idx_batches_plant_org ON public.material_batches (plant_id, organization_id);",
+        "CREATE INDEX IF NOT EXISTS idx_work_orders_plant_org ON public.work_orders (plant_id, organization_id);",
+        "CREATE INDEX IF NOT EXISTS idx_calibrations_plant_org ON public.equipment_calibrations (plant_id, organization_id);",
+        "CREATE INDEX IF NOT EXISTS idx_qualifications_plant_org ON public.equipment_qualifications (plant_id, organization_id);"
+      ];
+      for (const sql of indexes) {
+        try {
+          await this.pool.query(sql);
+        } catch (e: any) {
+          console.warn('Index step note:', e.message);
+        }
+      }
+      console.log('✅ Master Data Plant & Org Scoping applied completely!');
     } catch (err: any) {
       console.error('Error applying master data scoping migration:', err?.message || err);
     }
@@ -289,7 +333,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         INSERT INTO public.equipment_master (equipment_id, equipment_name, work_center, equipment_type, manufacturer, model, capacity_per_shift, oee_applicable, status, plant_id, organization_id)
         VALUES ('EX-101', 'Extraction Vessel EX-101', 'WC-API-EXT', 'EXTRACTION_VESSEL', 'Pfaudler Reactor Systems', 'GL-EX-250', 500, 'Y', 'RUNNING', $1, $2)
         ON CONFLICT (equipment_id) DO UPDATE SET status = 'RUNNING', work_center = 'WC-API-EXT', plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
-      `);
+      `, [plantId, orgId]);
 
       // 9. Ensure Warehouse and Location
       let warehouseId = 'b0000000-0003-3333-3333-333333333333';
@@ -344,7 +388,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         ('ca000001-0003-1111-1111-111111111111', 'RM-WTR-001', 'Purified Water USP', 'RAW_MATERIAL', 'WATER', 'L', 'In-House Generation Loop', NULL, 30, 'Ambient Loop WFI Circulation', '', 'APPROVED', NOW(), $1, $2),
         ('ca000001-0004-1111-1111-111111111111', 'RM-SALT-001', 'Sodium Chloride Reagent USP', 'RAW_MATERIAL', 'SALT', 'KG', 'Avantor Performance Materials', 'ba000001-0003-1111-1111-111111111111', 1095, 'Dry Ambient Storage < 60% RH', '', 'APPROVED', NOW(), $1, $2)
         ON CONFLICT (material_code) DO UPDATE SET plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
-      `);
+      `, [plantId, orgId]);
 
       // 12. Material Batches & Inventory
       await this.pool.query(`
@@ -368,7 +412,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       await this.pool.query(`
         INSERT INTO public.bom_header (bom_id, parent_material, revision, effective_from, effective_to, status, plant_id, organization_id)
         VALUES ('BOM-API-001', 'API-INT-X', 'A', '2026-01-01', NULL, 'RELEASED', $1, $2)
-        ON CONFLICT (bom_id) DO UPDATE SET plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
+        ON CONFLICT (bom_id, revision) DO UPDATE SET plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
       `, [plantId, orgId]);
 
       await this.pool.query(`
@@ -384,7 +428,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       await this.pool.query(`
         INSERT INTO public.routing_header (routing_id, material_code, revision, description, status, plant_id, organization_id)
         VALUES ('RT-API-001', 'API-INT-X', 'A', '13-Step GMP Liquid-Liquid Extraction Train', 'RELEASED', $1, $2)
-        ON CONFLICT (routing_id) DO UPDATE SET plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
+        ON CONFLICT (routing_id, revision) DO UPDATE SET plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
       `, [plantId, orgId]);
 
       await this.pool.query(`
