@@ -1,4 +1,4 @@
-import { currentPlant } from '../auth/access-context';
+import { currentPlant, currentAccess } from '../auth/access-context';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import {
@@ -41,12 +41,12 @@ export class InventoryController {
 
   private plantQuery(sql: string, params: any[] = []) {
     const n = params.length + 1;
-    return this.dataSource.query(`WITH work_orders AS (SELECT * FROM public.work_orders WHERE plant_id=$${n}),
-      inventory_balances AS (SELECT * FROM public.inventory_balances WHERE plant_id=$${n}),
-      material_batches AS (SELECT mb.* FROM public.material_batches mb WHERE EXISTS
-        (SELECT 1 FROM public.dispensing_records dr JOIN work_orders w ON w.id=dr.work_order_id WHERE dr.material_batch_id=mb.id)),
-      genealogy AS (SELECT g.* FROM public.genealogy g WHERE EXISTS
-        (SELECT 1 FROM public.machines m JOIN public.lines l ON l.id=m.line_id JOIN public.areas a ON a.id=l.area_id WHERE m.code=g.machine_id AND a.plant_id=$${n}))
+    return this.dataSource.query(`WITH work_orders AS (SELECT * FROM public.work_orders WHERE plant_id=${n}),
+      inventory_balances AS (SELECT * FROM public.inventory_balances WHERE plant_id=${n}),
+      material_batches AS (SELECT * FROM public.material_batches WHERE plant_id=${n}),
+      dispensing_records AS (SELECT * FROM public.dispensing_records WHERE plant_id=${n}),
+      production_logs AS (SELECT * FROM public.production_logs WHERE plant_id=${n}),
+      genealogy AS (SELECT * FROM public.genealogy WHERE plant_id=${n})
       ${sql}`, [...params, currentPlant()]);
   }
 
@@ -574,14 +574,15 @@ export class InventoryController {
     @Query('status') status?: string,
     @Query('search') search?: string,
   ) {
+    const plantId = currentPlant();
     let sql = `
       SELECT su.*, p.name as product_name, p.sku as product_sku, wo.wo_number
       FROM serialized_units su
       JOIN products p ON su.product_id = p.id
       JOIN work_orders wo ON su.work_order_id = wo.id
-      WHERE 1=1
+      WHERE (su.plant_id = $1 OR ($1 IS NULL AND su.plant_id IS NULL))
     `;
-    const params: any[] = [];
+    const params: any[] = [plantId];
     if (productId) {
       params.push(productId);
       sql += ` AND su.product_id = $${params.length}`;
@@ -612,13 +613,14 @@ export class InventoryController {
     const cleanSn = serialNumber.trim().toUpperCase();
 
     // 1. Fetch unit header
+    const plantId = currentPlant();
     const units = await this.dataSource.query(
       `SELECT su.*, p.name as product_name, p.sku as product_sku, wo.wo_number, wo.target_quantity
        FROM serialized_units su
        JOIN products p ON su.product_id = p.id
        JOIN work_orders wo ON su.work_order_id = wo.id
-       WHERE UPPER(su.serial_number) = $1`,
-      [cleanSn]
+       WHERE UPPER(su.serial_number) = $1 AND (su.plant_id = $2 OR $2 IS NULL)`,
+      [cleanSn, plantId]
     );
 
     if (!units || units.length === 0) {
@@ -754,6 +756,8 @@ export class InventoryController {
     }
 
     const unit = units[0];
+    const plantId = unit.plant_id || currentPlant();
+    const orgId = unit.organization_id || currentAccess().organizationId;
 
     // Insert event into product_genealogy_events
     if (Array.isArray(components) && components.length > 0) {
@@ -763,14 +767,15 @@ export class InventoryController {
             unit_serial, work_order_id, operation_no, operation_name, work_center, machine_id,
             component_code, component_name, component_lot, supplier_code, supplier_name, inventory_location,
             operator_username, operator_signature, inspector_username, inspector_signature, dual_signature_verified,
-            quality_status, quality_inspection_text, parameters, timestamp
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, true, 'PASS', $17, $18, NOW())`,
+            quality_status, quality_inspection_text, parameters, timestamp, plant_id, organization_id
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, true, 'PASS', $17, $18, NOW(), $19, $20)`,
           [
             cleanSn, unit.work_order_id, operationNo, operationName, workCenter, machineId,
             comp.code, comp.name, comp.lot || comp.code, comp.supplierCode || 'SUP-MECH-02', comp.supplierName || 'Tier-1 Supplier', comp.location || 'WH-RAW',
             operatorUsername || 'operator1', operatorSignature || 'Line Operator',
             inspectorUsername || 'supervisor', inspectorSignature || 'Quality Supervisor',
-            inspectionText || 'Inspection verified', JSON.stringify(parameters || {})
+            inspectionText || 'Inspection verified', JSON.stringify(parameters || {}),
+            plantId, orgId
           ]
         );
       }
@@ -845,15 +850,16 @@ export class InventoryController {
   async getForwardRecallAnalysis(@Param('lotNumber') lotNumber: string) {
     const cleanLot = lotNumber.trim().toUpperCase();
 
+    const plantId = currentPlant();
     const affectedEvents = await this.dataSource.query(
       `SELECT ge.*, su.status as unit_status, su.warehouse_location, su.dispatch_customer, su.dispatch_note,
               p.name as product_name, p.sku as product_sku
        FROM product_genealogy_events ge
        JOIN serialized_units su ON ge.unit_serial = su.serial_number
        JOIN products p ON su.product_id = p.id
-       WHERE UPPER(ge.component_lot) = $1
+       WHERE UPPER(ge.component_lot) = $1 AND (su.plant_id = $2 OR $2 IS NULL)
        ORDER BY ge.unit_serial ASC`,
-      [cleanLot]
+      [cleanLot, plantId]
     );
 
     const affectedUnitsMap = new Map();
@@ -933,8 +939,8 @@ export class InventoryController {
     await this.dataSource.query(
       `UPDATE serialized_units
        SET status = 'REJECTED', warehouse_location = 'MRB-QUARANTINE-RECALL', updated_at = NOW()
-       WHERE serial_number = ANY($1) AND status != 'DISPATCHED'`,
-      [serialNumbers]
+       WHERE serial_number = ANY($1) AND status != 'DISPATCHED' AND (plant_id = $2 OR $2 IS NULL)`,
+      [serialNumbers, currentPlant()]
     );
 
     return {
@@ -1041,13 +1047,16 @@ export class InventoryController {
     const supervisorId = supervisorUsers[0]?.id || '33333333-3333-3333-3333-333333333333';
     const finalUsername = supervisorUsers[0]?.username || 'supervisor';
 
+    const plantId = wo.plant_id || currentPlant();
+    const orgId = wo.organization_id || currentAccess().organizationId;
+
     await this.dataSource.query(
       `INSERT INTO electronic_signatures (
-        id, user_id, username, meaning, timestamp
+        id, user_id, username, meaning, timestamp, plant_id, organization_id
       ) VALUES (
-        gen_random_uuid(), $1, $2, $3, NOW()
+        gen_random_uuid(), $1, $2, $3, NOW(), $4, $5
       )`,
-      [supervisorId, finalUsername, supervisorSignature || `${finalUsername} (Quality Supervisor) - Final Work Order Closure & Release`]
+      [supervisorId, finalUsername, supervisorSignature || `${finalUsername} (Quality Supervisor) - Final Work Order Closure & Release`, plantId, orgId]
     );
 
     return {

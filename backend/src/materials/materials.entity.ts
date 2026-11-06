@@ -253,6 +253,12 @@ export class MaterialBatch {
 
 @Entity('material_inventory')
 export class MaterialInventory {
+  @Column({ name: 'plant_id', type: 'uuid', nullable: true })
+  plantId: string;
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -285,6 +291,12 @@ export class MaterialInventory {
 
 @Entity('material_transactions')
 export class MaterialTransaction {
+  @Column({ name: 'plant_id', type: 'uuid', nullable: true })
+  plantId: string;
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -331,6 +343,12 @@ export class MaterialTransaction {
 
 @Entity('dispensing_records')
 export class DispensingRecord {
+  @Column({ name: 'plant_id', type: 'uuid', nullable: true })
+  plantId: string;
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -395,6 +413,12 @@ export class DispensingRecord {
 
 @Entity('material_consumptions')
 export class MaterialConsumption {
+  @Column({ name: 'plant_id', type: 'uuid', nullable: true })
+  plantId: string;
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

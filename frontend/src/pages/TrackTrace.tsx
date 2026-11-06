@@ -69,7 +69,10 @@ import ProductGenealogyExplorer from '../components/ProductGenealogyExplorer';
  * @returns {JSX.Element} Interactive Track & Trace workbench.
  */
 export default function TrackTrace() {
-  const { token } = useShopfloorStore();
+  const { token, user } = useShopfloorStore();
+  const isPharma = Boolean(user?.plantName?.toLowerCase().includes('pharma') || user?.username?.includes('pharma'));
+  const defaultTraceLot = isPharma ? 'LOT-API-CRUDE-04' : 'FG-260901-001';
+  const defaultRecallLot = isPharma ? 'LOT-API-CRUDE-04' : 'EN8-260901';
   const { tab } = useParams<{ tab?: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'genealogy' | 'products' | 'batches' | 'trace' | 'events' | 'shipments' | 'recall'>('dashboard');
@@ -107,13 +110,13 @@ export default function TrackTrace() {
   const [events, setEvents] = useState<any[]>([]);
   
   // Lot Genealogy Search state
-  const [searchLot, setSearchLot] = useState('FG-260901-001');
+  const [searchLot, setSearchLot] = useState(defaultTraceLot);
   const [traceResult, setTraceResult] = useState<any>(null);
   const [traceLoading, setTraceLoading] = useState(false);
   const [traceError, setTraceError] = useState('');
 
   // Recall Search state
-  const [recallLot, setRecallLot] = useState('EN8-260901');
+  const [recallLot, setRecallLot] = useState(defaultRecallLot);
   const [recallResult, setRecallResult] = useState<any>(null);
   const [recallLoading, setRecallLoading] = useState(false);
 
@@ -325,7 +328,7 @@ export default function TrackTrace() {
               activeTab === 'genealogy'
                 ? 'bg-white/20 text-white font-extrabold' : 'bg-slate-100 dark:bg-[#102237] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold'
             }`}>
-              100 Units
+              5W1H Dossier
             </span>
           </button>
 

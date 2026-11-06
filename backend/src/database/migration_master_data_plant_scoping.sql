@@ -240,3 +240,80 @@ CREATE INDEX IF NOT EXISTS idx_batches_plant_org ON public.material_batches (pla
 CREATE INDEX IF NOT EXISTS idx_work_orders_plant_org ON public.work_orders (plant_id, organization_id);
 CREATE INDEX IF NOT EXISTS idx_calibrations_plant_org ON public.equipment_calibrations (plant_id, organization_id);
 CREATE INDEX IF NOT EXISTS idx_qualifications_plant_org ON public.equipment_qualifications (plant_id, organization_id);
+
+-- ============================================================================
+-- TRACK & TRACE MULTI-TENANT ISOLATION DDL & INDEXES
+-- ============================================================================
+ALTER TABLE public.serialized_units 
+  ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT,
+  ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;
+
+ALTER TABLE public.product_genealogy_events 
+  ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT,
+  ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;
+
+ALTER TABLE public.genealogy 
+  ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT,
+  ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;
+
+ALTER TABLE public.inventory_balances 
+  ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT;
+
+ALTER TABLE public.production_logs 
+  ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT,
+  ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;
+
+ALTER TABLE public.dispensing_records 
+  ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT,
+  ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;
+
+ALTER TABLE public.electronic_signatures 
+  ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT,
+  ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;
+
+ALTER TABLE public.material_consumptions 
+  ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT,
+  ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;
+
+ALTER TABLE public.material_inventory 
+  ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT,
+  ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;
+
+ALTER TABLE public.material_transactions 
+  ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT,
+  ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;
+
+-- Safe Track & Trace Backfills
+UPDATE public.serialized_units su SET plant_id = wo.plant_id, organization_id = wo.organization_id FROM public.work_orders wo WHERE su.work_order_id = wo.id AND (su.plant_id IS NULL OR su.organization_id IS NULL);
+UPDATE public.serialized_units SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;
+
+UPDATE public.product_genealogy_events ge SET plant_id = wo.plant_id, organization_id = wo.organization_id FROM public.work_orders wo WHERE ge.work_order_id = wo.id AND (ge.plant_id IS NULL OR ge.organization_id IS NULL);
+UPDATE public.product_genealogy_events SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;
+
+UPDATE public.inventory_balances ib SET organization_id = p.organization_id FROM public.plants p WHERE ib.plant_id = p.id AND ib.organization_id IS NULL;
+UPDATE public.inventory_balances SET organization_id = '10000000-0000-0000-0000-000000000001' WHERE organization_id IS NULL;
+
+UPDATE public.production_logs pl SET plant_id = wo.plant_id, organization_id = wo.organization_id FROM public.work_orders wo WHERE pl.work_order_id = wo.id AND (pl.plant_id IS NULL OR pl.organization_id IS NULL);
+UPDATE public.production_logs SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;
+
+UPDATE public.dispensing_records dr SET plant_id = wo.plant_id, organization_id = wo.organization_id FROM public.work_orders wo WHERE dr.work_order_id = wo.id AND (dr.plant_id IS NULL OR dr.organization_id IS NULL);
+UPDATE public.dispensing_records SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;
+
+UPDATE public.genealogy g SET plant_id = a.plant_id, organization_id = pl.organization_id FROM public.machines m JOIN public.lines l ON l.id = m.line_id JOIN public.areas a ON a.id = l.area_id JOIN public.plants pl ON pl.id = a.plant_id WHERE m.code = g.machine_id AND (g.plant_id IS NULL OR g.organization_id IS NULL);
+UPDATE public.genealogy SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;
+
+UPDATE public.electronic_signatures es SET plant_id = u.plant_id, organization_id = u.organization_id FROM public.users u WHERE es.user_id = u.id AND (es.plant_id IS NULL OR es.organization_id IS NULL);
+UPDATE public.electronic_signatures SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;
+
+UPDATE public.material_consumptions mc SET plant_id = wo.plant_id, organization_id = wo.organization_id FROM public.work_orders wo WHERE mc.work_order_id = wo.id AND (mc.plant_id IS NULL OR mc.organization_id IS NULL);
+UPDATE public.material_consumptions SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;
+
+-- Track & Trace Compound Performance Indexes
+CREATE INDEX IF NOT EXISTS idx_serialized_units_plant_org ON public.serialized_units (plant_id, organization_id);
+CREATE INDEX IF NOT EXISTS idx_genealogy_events_plant_org ON public.product_genealogy_events (plant_id, organization_id);
+CREATE INDEX IF NOT EXISTS idx_genealogy_plant_org ON public.genealogy (plant_id, organization_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_balances_plant_org ON public.inventory_balances (plant_id, organization_id);
+CREATE INDEX IF NOT EXISTS idx_production_logs_plant_org ON public.production_logs (plant_id, organization_id);
+CREATE INDEX IF NOT EXISTS idx_dispensing_records_plant_org ON public.dispensing_records (plant_id, organization_id);
+CREATE INDEX IF NOT EXISTS idx_electronic_signatures_plant_org ON public.electronic_signatures (plant_id, organization_id);
+CREATE INDEX IF NOT EXISTS idx_material_consumptions_plant_org ON public.material_consumptions (plant_id, organization_id);

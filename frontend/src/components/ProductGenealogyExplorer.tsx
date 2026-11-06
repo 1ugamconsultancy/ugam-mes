@@ -92,7 +92,11 @@ export default function ProductGenealogyExplorer({
       });
       if (res.ok) {
         const data = await res.json();
-        setUnits(Array.isArray(data) ? data : []);
+        const loadedUnits = Array.isArray(data) ? data : [];
+        setUnits(loadedUnits);
+        if (loadedUnits.length > 0 && (!selectedSerial || !loadedUnits.some(u => u.serial_number === selectedSerial))) {
+          setSelectedSerial(loadedUnits[0].serial_number);
+        }
       }
     } catch (err) {
       console.warn('Failed to load serialized units:', err);

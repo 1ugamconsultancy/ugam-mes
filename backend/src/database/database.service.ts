@@ -111,6 +111,16 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         "ALTER TABLE public.equipment_calibrations ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
         "ALTER TABLE public.equipment_qualifications ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
         "ALTER TABLE public.warehouses ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.serialized_units ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.product_genealogy_events ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.genealogy ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.inventory_balances ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.production_logs ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.dispensing_records ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.electronic_signatures ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.material_consumptions ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.material_inventory ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
+        "ALTER TABLE public.material_transactions ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id) ON DELETE RESTRICT, ADD COLUMN IF NOT EXISTS plant_id UUID REFERENCES public.plants(id) ON DELETE RESTRICT;",
       ];
       for (const sql of statements) {
         try {
@@ -134,6 +144,26 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         "UPDATE public.material_batches mb SET plant_id = mm.plant_id, organization_id = mm.organization_id FROM public.material_master mm WHERE mb.material_id = mm.id AND mb.plant_id IS NULL;",
         "UPDATE public.equipment_calibrations SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;",
         "UPDATE public.equipment_qualifications SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;",
+        "UPDATE public.serialized_units su SET plant_id = wo.plant_id, organization_id = wo.organization_id FROM public.work_orders wo WHERE su.work_order_id = wo.id AND (su.plant_id IS NULL OR su.organization_id IS NULL);",
+        "UPDATE public.serialized_units SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;",
+        "UPDATE public.product_genealogy_events ge SET plant_id = wo.plant_id, organization_id = wo.organization_id FROM public.work_orders wo WHERE ge.work_order_id = wo.id AND (ge.plant_id IS NULL OR ge.organization_id IS NULL);",
+        "UPDATE public.product_genealogy_events SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;",
+        "UPDATE public.inventory_balances ib SET organization_id = p.organization_id FROM public.plants p WHERE ib.plant_id = p.id AND ib.organization_id IS NULL;",
+        "UPDATE public.inventory_balances SET organization_id = '10000000-0000-0000-0000-000000000001' WHERE organization_id IS NULL;",
+        "UPDATE public.production_logs pl SET plant_id = wo.plant_id, organization_id = wo.organization_id FROM public.work_orders wo WHERE pl.work_order_id = wo.id AND (pl.plant_id IS NULL OR pl.organization_id IS NULL);",
+        "UPDATE public.production_logs SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;",
+        "UPDATE public.dispensing_records dr SET plant_id = wo.plant_id, organization_id = wo.organization_id FROM public.work_orders wo WHERE dr.work_order_id = wo.id AND (dr.plant_id IS NULL OR dr.organization_id IS NULL);",
+        "UPDATE public.dispensing_records SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;",
+        "UPDATE public.genealogy g SET plant_id = a.plant_id, organization_id = pl.organization_id FROM public.machines m JOIN public.lines l ON l.id = m.line_id JOIN public.areas a ON a.id = l.area_id JOIN public.plants pl ON pl.id = a.plant_id WHERE m.code = g.machine_id AND (g.plant_id IS NULL OR g.organization_id IS NULL);",
+        "UPDATE public.genealogy SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;",
+        "UPDATE public.electronic_signatures es SET plant_id = u.plant_id, organization_id = u.organization_id FROM public.users u WHERE es.user_id = u.id AND (es.plant_id IS NULL OR es.organization_id IS NULL);",
+        "UPDATE public.electronic_signatures SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;",
+        "UPDATE public.material_consumptions mc SET plant_id = wo.plant_id, organization_id = wo.organization_id FROM public.work_orders wo WHERE mc.work_order_id = wo.id AND (mc.plant_id IS NULL OR mc.organization_id IS NULL);",
+        "UPDATE public.material_consumptions SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;",
+        "UPDATE public.material_inventory mi SET plant_id = mb.plant_id, organization_id = mb.organization_id FROM public.material_batches mb WHERE mi.material_batch_id = mb.id AND (mi.plant_id IS NULL OR mi.organization_id IS NULL);",
+        "UPDATE public.material_inventory SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;",
+        "UPDATE public.material_transactions mt SET plant_id = mb.plant_id, organization_id = mb.organization_id FROM public.material_batches mb WHERE mt.material_batch_id = mb.id AND (mt.plant_id IS NULL OR mt.organization_id IS NULL);",
+        "UPDATE public.material_transactions SET plant_id = 'a0000000-0001-1111-1111-111111111111', organization_id = '10000000-0000-0000-0000-000000000001' WHERE plant_id IS NULL;",
       ];
       for (const sql of backfills) {
         try {
@@ -525,6 +555,67 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           ON CONFLICT (id) DO UPDATE SET plant_id = $2, organization_id = $4, status = 'IN_PROGRESS'
         `, [productId, plantId, recipeId, orgId]);
       }
+
+      // 17. Seed Pharma Serialized Units & Genealogy for WO-API-2026-001
+      const woId = existingWo.rowCount && existingWo.rowCount > 0 ? existingWo.rows[0].id : '80111111-0008-1111-1111-111111111111';
+
+      // Seed Finished Goods Inventory Balance for Pharma
+      await this.pool.query(`
+        INSERT INTO public.inventory_balances (
+          id, plant_id, organization_id, product_id, lot_number, quantity, wip_status, location_code, created_at, updated_at
+        )
+        VALUES (
+          '90111111-0009-1111-1111-111111111111', $1, $2, $3, 'LOT-API-2026-001', 45.0000, 'RELEASED', 'WH-PHARMA-FG / RACK-01', NOW(), NOW()
+        )
+        ON CONFLICT (lot_number) DO UPDATE SET plant_id = $1, organization_id = $2
+      `, [plantId, orgId, productId]);
+
+      // Seed 5 Serialized Units for Pharma
+      const pharmaSerials = [
+        { sn: 'API-2026-001-U01', status: 'FINISHED_INVENTORY', op: 13, loc: 'WH-PHARMA-FG / RACK-01 / BIN-A1' },
+        { sn: 'API-2026-001-U02', status: 'FINISHED_INVENTORY', op: 13, loc: 'WH-PHARMA-FG / RACK-01 / BIN-A2' },
+        { sn: 'API-2026-001-U03', status: 'FINISHED_INVENTORY', op: 13, loc: 'WH-PHARMA-FG / RACK-01 / BIN-A3' },
+        { sn: 'API-2026-001-U04', status: 'UNDER_ASSEMBLY', op: 8, loc: 'LINE-LLE-01 / EX-101 / EXTRACT-BAY' },
+        { sn: 'API-2026-001-U05', status: 'UNDER_ASSEMBLY', op: 5, loc: 'LINE-LLE-01 / EX-101 / MIXING-BAY' }
+      ];
+
+      for (const su of pharmaSerials) {
+        await this.pool.query(`
+          INSERT INTO public.serialized_units (
+            id, work_order_id, product_id, serial_number, status, current_operation_no, current_work_center, warehouse_location, plant_id, organization_id, created_at, updated_at
+          )
+          VALUES (
+            gen_random_uuid(), $1, $2, $3, $4, $5, 'WC-API-EXT', $6, $7, $8, NOW(), NOW()
+          )
+          ON CONFLICT (serial_number) DO UPDATE SET plant_id = $7, organization_id = $8, status = $4, warehouse_location = $6
+        `, [woId, productId, su.sn, su.status, su.op, su.loc, plantId, orgId]);
+
+        // Seed 5W1H Genealogy Events for this unit
+        await this.pool.query(`
+          INSERT INTO public.product_genealogy_events (
+            unit_serial, work_order_id, operation_no, operation_name, work_center, machine_id,
+            component_code, component_name, component_lot, supplier_code, supplier_name, inventory_location,
+            operator_username, operator_signature, inspector_username, inspector_signature, dual_signature_verified,
+            quality_status, quality_inspection_text, parameters, timestamp, plant_id, organization_id
+          )
+          VALUES 
+          ($1, $2, 1, 'Verify API intermediate and solvent lots', 'WC-API-EXT', 'EX-101', 'INT-CRUDE-001', 'Crude API Reaction Mixture', 'LOT-API-CRUDE-04', 'VND-PHARMA-01', 'BioPure Synthesis India Pvt Ltd', 'WH-PHARMA-RM / AIRLOCK-01', 'pharma_op1', 'Aakash Verma (Extraction OP)', 'pharma_qa1', 'Dr. Priya Sen (QA Compliance)', true, 'PASS', 'Analytical CoA verified against EP/USP monograph standards', '{"limsCoaVerified": true, "rawLot": "LOT-API-CRUDE-04"}', NOW() - INTERVAL '4 hours', $3, $4),
+          ($1, $2, 5, 'Mix phases', 'WC-API-EXT', 'EX-101', 'RM-SOLV-001', 'Ethyl Acetate Solvent USP', 'LOT-SOLV-2026-02', 'VND-PHARMA-02', 'SolvChem Specialities Ltd', 'WH-PHARMA-SOLV / FLAMMABLE-BAY-2', 'pharma_op1', 'Aakash Verma (Extraction OP)', 'pharma_qa1', 'Dr. Priya Sen (QA Compliance)', true, 'PASS', 'Agitation speed and jacket temperature within validated ranges', '{"mixingSpeedRpm": 250, "temperatureC": 23.5, "mixingDurationMin": 45}', NOW() - INTERVAL '3 hours', $3, $4),
+          ($1, $2, 8, 'Verify aqueous phase conductivity', 'WC-API-EXT', 'EX-101', 'INT-CRUDE-001', 'Aqueous Waste Layer', 'LOT-AQ-EXT-01', 'VND-PHARMA-01', 'BioPure Synthesis India Pvt Ltd', 'EX-101 Sump', 'pharma_op1', 'Aakash Verma (Extraction OP)', 'pharma_qa1', 'Dr. Priya Sen (QA Compliance)', true, 'PASS', 'High ionic conductivity confirms complete salt extraction into aqueous phase', '{"conductivityMsCm": 52.4, "specification": "> 45 mS/cm"}', NOW() - INTERVAL '2 hours', $3, $4),
+          ($1, $2, 9, 'Verify organic phase / carryover', 'WC-API-EXT', 'EX-101', 'API-INT-X', 'Recovered Organic API Layer', 'LOT-API-2026-001', 'VND-PHARMA-01', 'BioPure Synthesis India Pvt Ltd', 'REC-102 Receiver', 'pharma_op1', 'Aakash Verma (Extraction OP)', 'pharma_qa1', 'Dr. Priya Sen (QA Compliance)', true, 'PASS', 'Low organic conductivity confirms negligible aqueous carryover (< 0.20 mS/cm)', '{"conductivityMsCm": 0.08, "specification": "< 0.20 mS/cm"}', NOW() - INTERVAL '1 hour', $3, $4)
+          ON CONFLICT DO NOTHING
+        `, [su.sn, woId, plantId, orgId]);
+      }
+
+      // Seed 2 Production Logs for Pharma
+      await this.pool.query(`
+        INSERT INTO public.production_logs (
+          id, work_order_id, machine_id, operator_id, timestamp, count_good, count_scrap, plant_id, organization_id
+        )
+        VALUES 
+        (gen_random_uuid(), $1, 'd1111111-0004-1111-1111-111111111111', '348818bf-4f01-4545-b4d1-6af46a51a858', NOW() - INTERVAL '2 hours', 45, 0, $2, $3)
+        ON CONFLICT DO NOTHING
+      `, [woId, plantId, orgId]);
 
       console.log('🎉 Pharma Liquid-Liquid Extraction Plant, operations, and users fully ensured & linked!');
     } catch (err: any) {

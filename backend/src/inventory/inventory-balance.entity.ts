@@ -6,6 +6,9 @@ export class InventoryBalance {
   @Column({ name: 'plant_id', type: 'uuid', nullable: true })
   plantId: string;
 
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string;
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
