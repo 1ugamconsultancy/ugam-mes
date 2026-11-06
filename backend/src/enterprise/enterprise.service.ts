@@ -476,8 +476,13 @@ export class EnterpriseService {
   }
 
   async seedPharmaPlant() {
-    await this.databaseService.autoEnsurePharmaPlantAndUsers();
-    return { success: true, message: 'Pharma Liquid-Liquid Extraction Plant, operations, and users successfully synchronized' };
+    try {
+      await this.databaseService.autoEnsurePharmaPlantAndUsers();
+      const units = await this.databaseService.query("SELECT serial_number, plant_id, product_id, work_order_id FROM public.serialized_units WHERE plant_id = '396c9f46-006d-4ade-82d2-6fd1b5c6c5e5'");
+      return { success: true, count: units.rows.length, units: units.rows };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
   }
 
 }
