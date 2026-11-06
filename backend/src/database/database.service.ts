@@ -42,6 +42,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         this.isConnected = true;
         console.log('Successfully connected to PostgreSQL Database Server');
         await this.autoBootstrapIfEmpty();
+        await this.autoSeedPharmaPlantIfMissing();
       })
       .catch((err) => {
         this.isConnected = false;
@@ -87,6 +88,44 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       }
     } catch (err: any) {
       console.error('Error during auto-bootstrap check:', err?.message || err);
+    }
+  }
+
+  
+  private async autoSeedPharmaPlantIfMissing() {
+    try {
+      const check = await this.pool.query(
+        "SELECT 1 FROM public.plants WHERE code = 'PHARMA-PLANT-01'"
+      );
+      if (check.rowCount === 0) {
+        console.log('🌱 Seeding Pharma Liquid-Liquid Extraction Plant into PostgreSQL...');
+        const candidatePaths = [
+          path.join(__dirname, 'pharma-seed.sql'),
+          path.join(__dirname, '..', 'src', 'database', 'pharma-seed.sql'),
+          path.join(process.cwd(), 'src', 'database', 'pharma-seed.sql'),
+          path.join(process.cwd(), 'dist', 'database', 'pharma-seed.sql'),
+          path.join(process.cwd(), 'pharma-seed.sql'),
+          '/app/dist/database/pharma-seed.sql',
+          '/app/src/database/pharma-seed.sql'
+        ];
+        let sqlContent = '';
+        for (const p of candidatePaths) {
+          if (fs.existsSync(p)) {
+            sqlContent = fs.readFileSync(p, 'utf8');
+            break;
+          }
+        }
+        if (sqlContent) {
+          await this.pool.query(sqlContent);
+          console.log('✅ Pharma Liquid-Liquid Extraction Plant successfully seeded!');
+        } else {
+          console.warn('Could not locate pharma-seed.sql for auto-seeding.');
+        }
+      } else {
+        console.log('Pharma Liquid-Liquid Extraction Plant verified in database.');
+      }
+    } catch (err: any) {
+      console.error('Error during Pharma plant seed check:', err?.message || err);
     }
   }
 

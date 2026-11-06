@@ -67,7 +67,7 @@ interface OperationStep {
       unit: string;
       target: string;
       status: 'IN SPEC' | 'OUT OF SPEC';
-      trendLabel: string;
+      trendLabel?: string;
     };
     sensor2: {
       tag: string;
@@ -453,6 +453,575 @@ const DEFAULT_OPERATIONS: OperationStep[] = [
   }
 ];
 
+// 13 GMP Master Recipe operations for API Intermediate X (WO-API-2026-001 / RCP-API-LLE-001) in EX-101
+const PHARMA_LLE_OPERATIONS: OperationStep[] = [
+  {
+    stepNumber: 1,
+    operationNo: 1,
+    operationCode: 'OP-01',
+    operationName: 'Verify API intermediate and solvent lots',
+    machineCode: 'EX-101',
+    machineName: 'Extraction Vessel EX-101',
+    workCenter: 'WC-API-EXT',
+    categoryTag: 'VERIFY',
+    status: 'COMPLETED',
+    progressPct: 100,
+    coreInstruction: 'Verify API intermediate and solvent lots by material scan and released status.',
+    actionProtocol: 'Perform 2D QR lot scan on container lots for Crude API Intermediate (INT-CRUDE-001) and Ethyl Acetate (RM-SOLV-001). Confirm Certificate of Analysis (CoA) status is APPROVED and quarantine release seals are intact. Enforce 21 CFR Part 11 electronic signature.',
+    holdSpec: '10.0 min',
+    bomComponents: [
+      { code: 'INT-CRUDE-001', name: 'Crude API Intermediate Solution', type: 'Intermediate Solution', qty: '65.0 kg', lot: '#LOT-API-CRUDE-04' },
+      { code: 'RM-SOLV-001', name: 'Ethyl Acetate Solvent USP', type: 'Process Solvent', qty: '45.0 L', lot: '#LOT-EA-SOLV-22' }
+    ],
+    cpps: {
+      sensor1: {
+        tag: 'LOT-STATUS',
+        label: 'QC Lot Release Conformance',
+        value: 100,
+        unit: '%',
+        target: '100% QA Released',
+        status: 'IN SPEC',
+        trendLabel: 'Released & Approved'
+      },
+      sensor2: {
+        tag: 'TI-STAG',
+        label: 'Material Staging Room Temperature',
+        value: 21.4,
+        unit: '°C',
+        target: '20.0 °C – 25.0 °C',
+        status: 'IN SPEC'
+      },
+      sensor3: {
+        tag: 'RH-STAG',
+        label: 'Cleanroom Relative Humidity',
+        value: 45.0,
+        unit: '%RH',
+        target: '40.0 %RH – 55.0 %RH',
+        status: 'IN SPEC'
+      }
+    }
+  },
+  {
+    stepNumber: 2,
+    operationNo: 2,
+    operationCode: 'OP-02',
+    operationName: 'Verify extraction vessel',
+    machineCode: 'EX-101',
+    machineName: 'Extraction Vessel EX-101',
+    workCenter: 'WC-API-EXT',
+    categoryTag: 'VESSEL',
+    status: 'COMPLETED',
+    progressPct: 100,
+    coreInstruction: 'Verify extraction vessel cleaning and equipment status.',
+    actionProtocol: 'Inspect glass lining integrity, PTFE seals, and mechanical seal flush. Verify CIP/SIP logbook signoff and nitrogen blanket pressure. 21 CFR Part 11 signoff required.',
+    holdSpec: '15.0 min',
+    bomComponents: [],
+    cpps: {
+      sensor1: {
+        tag: 'CIP-TOC',
+        label: 'Final Rinse Water TOC Level',
+        value: 18,
+        unit: 'ppb',
+        target: '< 500 ppb',
+        status: 'IN SPEC',
+        trendLabel: 'Cleanroom Class B'
+      },
+      sensor2: {
+        tag: 'COND-RINSE',
+        label: 'Vessel Rinse Conductivity',
+        value: 0.92,
+        unit: 'µS/cm',
+        target: '< 1.30 µS/cm',
+        status: 'IN SPEC'
+      },
+      sensor3: {
+        tag: 'PI-N2',
+        label: 'Nitrogen Inert Blanket Pressure',
+        value: 0.15,
+        unit: 'bar',
+        target: '0.10 bar – 0.20 bar',
+        status: 'IN SPEC'
+      }
+    }
+  },
+  {
+    stepNumber: 3,
+    operationNo: 3,
+    operationCode: 'OP-03',
+    operationName: 'Charge API intermediate solution',
+    machineCode: 'EX-101',
+    machineName: 'Extraction Vessel EX-101',
+    workCenter: 'WC-API-EXT',
+    categoryTag: 'CHARGE',
+    status: 'COMPLETED',
+    progressPct: 100,
+    coreInstruction: 'Charge API intermediate solution with quantity verification.',
+    actionProtocol: 'Connect conductive braided fluoropolymer transfer hose. Tare vessel load cells. Charge 65.0 kg API intermediate at 5.0 kg/min under continuous dry nitrogen sweep. Electronic signature required.',
+    holdSpec: '20.0 min',
+    bomComponents: [
+      { code: 'INT-CRUDE-001', name: 'Crude API Intermediate Solution', type: 'Intermediate Solution', qty: '65.0 kg', lot: '#LOT-API-CRUDE-04' }
+    ],
+    cpps: {
+      sensor1: {
+        tag: 'WT-101',
+        label: 'Charged API Solution Mass',
+        value: 65.05,
+        unit: 'kg',
+        target: '65.0 kg ± 0.5 kg',
+        status: 'IN SPEC',
+        trendLabel: 'Load Cell Stable'
+      },
+      sensor2: {
+        tag: 'TI-101',
+        label: 'Vessel Liquid Temperature',
+        value: 22.8,
+        unit: '°C',
+        target: '20.0 °C – 25.0 °C',
+        status: 'IN SPEC'
+      },
+      sensor3: {
+        tag: 'OX-101',
+        label: 'Headspace O2 Concentration',
+        value: 0.6,
+        unit: '%',
+        target: '< 2.0% O2',
+        status: 'IN SPEC'
+      }
+    }
+  },
+  {
+    stepNumber: 4,
+    operationNo: 4,
+    operationCode: 'OP-04',
+    operationName: 'Add extraction solvent',
+    machineCode: 'EX-101',
+    machineName: 'Extraction Vessel EX-101',
+    workCenter: 'WC-API-EXT',
+    categoryTag: 'CHARGE',
+    status: 'COMPLETED',
+    progressPct: 100,
+    coreInstruction: 'Add extraction solvent with material identity and quantity verification.',
+    actionProtocol: 'Verify material identity and quantity via inline Coriolis flow transmitter FIT-102. Ensure grounding continuity and closed vapor balancing loop. Electronic signature required.',
+    holdSpec: '15.0 min',
+    bomComponents: [
+      { code: 'RM-SOLV-001', name: 'Ethyl Acetate Solvent USP', type: 'Process Solvent', qty: '45.0 L', lot: '#LOT-EA-SOLV-22' }
+    ],
+    cpps: {
+      sensor1: {
+        tag: 'FIT-102',
+        label: 'Solvent Charged Volume',
+        value: 45.1,
+        unit: 'L',
+        target: '45.0 L ± 0.5 L',
+        status: 'IN SPEC',
+        trendLabel: 'Meter Conforming'
+      },
+      sensor2: {
+        tag: 'TI-101',
+        label: 'Vessel Liquid Temperature',
+        value: 23.1,
+        unit: '°C',
+        target: '20.0 °C – 25.0 °C',
+        status: 'IN SPEC'
+      },
+      sensor3: {
+        tag: 'P-FLUX',
+        label: 'Solvent Feed Flow Rate',
+        value: 4.8,
+        unit: 'L/min',
+        target: '4.0 – 6.0 L/min',
+        status: 'IN SPEC'
+      }
+    }
+  },
+  {
+    stepNumber: 5,
+    operationNo: 5,
+    operationCode: 'OP-05',
+    operationName: 'Mix phases',
+    machineCode: 'EX-101',
+    machineName: 'Extraction Vessel EX-101',
+    workCenter: 'WC-API-EXT',
+    categoryTag: 'MIX',
+    status: 'RUNNING',
+    progressPct: 68,
+    coreInstruction: 'Mix phases maintaining RPM, time, and temperature.',
+    actionProtocol: 'Critical Process Parameters: Mixing speed directly influences extraction and emulsion formation (Target 250 RPM [240–260 RPM]). Mixing duration influences mass transfer between phases (Target 30.0 min [28–32 min]). Temperature influences solubility, conductivity, and separation (Target 23.5°C [20–25°C]). Regulate thermal jacket to maintain parameters. 21 CFR Part 11 electronic signature required upon step completion.',
+    holdSpec: '30.0 min',
+    bomComponents: [],
+    cpps: {
+      sensor1: {
+        tag: 'SI-101',
+        label: 'Agitator Mixing Speed',
+        value: 250.2,
+        unit: 'RPM',
+        target: '250 RPM [240 – 260 RPM]',
+        status: 'IN SPEC',
+        trendLabel: 'Agitator Steady ±1 RPM'
+      },
+      sensor2: {
+        tag: 'TMR-101',
+        label: 'Mixing Duration Timer',
+        value: 20.4,
+        unit: 'min',
+        target: '30.0 min [28.0 – 32.0 min]',
+        status: 'IN SPEC'
+      },
+      sensor3: {
+        tag: 'TI-101',
+        label: 'Vessel Core Temperature',
+        value: 23.5,
+        unit: '°C',
+        target: '23.5 °C [20.0 °C – 25.0 °C]',
+        status: 'IN SPEC'
+      }
+    }
+  },
+  {
+    stepNumber: 6,
+    operationNo: 6,
+    operationCode: 'OP-06',
+    operationName: 'Stop mixing and allow settling',
+    machineCode: 'EX-101',
+    machineName: 'Extraction Vessel EX-101',
+    workCenter: 'WC-API-EXT',
+    categoryTag: 'SETTLE',
+    status: 'QUEUED',
+    progressPct: 0,
+    coreInstruction: 'Stop mixing and allow settling for specified settling time.',
+    actionProtocol: 'Critical Process Parameter: Settling time allows the phases to disengage. Hold quiescently for 45.0 min (40.0–50.0 min) at 23.0°C to achieve complete thermodynamic separation between aqueous and organic layers. Electronic signature required.',
+    holdSpec: '45.0 min',
+    bomComponents: [],
+    cpps: {
+      sensor1: {
+        tag: 'TMR-102',
+        label: 'Phase Settling Timer',
+        value: 0,
+        unit: 'min',
+        target: '45.0 min [40.0 – 50.0 min]',
+        status: 'IN SPEC'
+      },
+      sensor2: {
+        tag: 'TI-101',
+        label: 'Vessel Temperature During Settling',
+        value: 23.2,
+        unit: '°C',
+        target: '20.0 °C – 25.0 °C',
+        status: 'IN SPEC'
+      },
+      sensor3: {
+        tag: 'SI-101',
+        label: 'Agitator Drive Status',
+        value: 0,
+        unit: 'RPM',
+        target: '0 RPM (Stopped)',
+        status: 'IN SPEC'
+      }
+    }
+  },
+  {
+    stepNumber: 7,
+    operationNo: 7,
+    operationCode: 'OP-07',
+    operationName: 'Verify interface formation',
+    machineCode: 'EX-101',
+    machineName: 'Extraction Vessel EX-101',
+    workCenter: 'WC-API-EXT',
+    categoryTag: 'INTERFACE',
+    status: 'QUEUED',
+    progressPct: 0,
+    coreInstruction: 'Verify interface formation, interface position, and stability.',
+    actionProtocol: 'Critical Process Parameter: Interface level helps prevent collection of the wrong phase. Confirm sharp meniscus line between dense lower aqueous layer and upper organic phase. Target interface level 480 mm (470–490 mm) with emulsion band < 10 mm. Electronic signature required.',
+    holdSpec: '10.0 min',
+    bomComponents: [],
+    cpps: {
+      sensor1: {
+        tag: 'LIT-101',
+        label: 'Interface Separation Level',
+        value: 480.2,
+        unit: 'mm',
+        target: '480 mm [470 – 490 mm]',
+        status: 'IN SPEC',
+        trendLabel: 'Sharp Interface'
+      },
+      sensor2: {
+        tag: 'OPT-101',
+        label: 'Emulsion Band Thickness',
+        value: 3.1,
+        unit: 'mm',
+        target: '< 10.0 mm (Rag Layer)',
+        status: 'IN SPEC'
+      },
+      sensor3: {
+        tag: 'TI-101',
+        label: 'Phase Core Temperature',
+        value: 23.4,
+        unit: '°C',
+        target: '20.0 °C – 25.0 °C',
+        status: 'IN SPEC'
+      }
+    }
+  },
+  {
+    stepNumber: 8,
+    operationNo: 8,
+    operationCode: 'OP-08',
+    operationName: 'Verify aqueous phase conductivity',
+    machineCode: 'EX-101',
+    machineName: 'Extraction Vessel EX-101',
+    workCenter: 'WC-API-EXT',
+    categoryTag: 'TEST',
+    status: 'QUEUED',
+    progressPct: 0,
+    coreInstruction: 'Verify aqueous phase conductivity within approved conductivity range.',
+    actionProtocol: 'Critical Process Parameter: Aqueous conductivity helps identify the conductive aqueous phase and ensure water-soluble impurities/salts are retained. Target conductivity 52.4 mS/cm (48.0–56.0 mS/cm) and pH 3.60–4.00. Electronic signature required.',
+    holdSpec: '10.0 min',
+    bomComponents: [],
+    cpps: {
+      sensor1: {
+        tag: 'AIT-101',
+        label: 'Toroidal Aqueous Phase Conductivity',
+        value: 52.4,
+        unit: 'mS/cm',
+        target: '52.4 mS/cm [48.0 – 56.0 mS/cm]',
+        status: 'IN SPEC',
+        trendLabel: 'Aqueous Phase High'
+      },
+      sensor2: {
+        tag: 'PH-101',
+        label: 'Aqueous Phase pH Value',
+        value: 3.82,
+        unit: 'pH',
+        target: '3.60 – 4.00 pH',
+        status: 'IN SPEC'
+      },
+      sensor3: {
+        tag: 'TI-101',
+        label: 'Aqueous Layer Temperature',
+        value: 23.5,
+        unit: '°C',
+        target: '20.0 °C – 25.0 °C',
+        status: 'IN SPEC'
+      }
+    }
+  },
+  {
+    stepNumber: 9,
+    operationNo: 9,
+    operationCode: 'OP-09',
+    operationName: 'Verify organic phase / carryover',
+    machineCode: 'EX-101',
+    machineName: 'Extraction Vessel EX-101',
+    workCenter: 'WC-API-EXT',
+    categoryTag: 'TEST',
+    status: 'QUEUED',
+    progressPct: 0,
+    coreInstruction: 'Verify organic phase / carryover via conductivity where suitable, plus required QC tests.',
+    actionProtocol: 'Critical Process Parameter: Organic stream conductivity may indicate ionic aqueous carryover, if measurable. Limit < 0.15 mS/cm (baseline 0.08 mS/cm). Karl Fischer rapid moisture < 0.50 wt%. Electronic signature required.',
+    holdSpec: '15.0 min',
+    bomComponents: [],
+    cpps: {
+      sensor1: {
+        tag: 'AIT-102',
+        label: 'Organic Stream Toroidal Conductivity',
+        value: 0.08,
+        unit: 'mS/cm',
+        target: '< 0.15 mS/cm [Target: 0.08]',
+        status: 'IN SPEC',
+        trendLabel: 'Near Zero Baseline'
+      },
+      sensor2: {
+        tag: 'KF-101',
+        label: 'Water Content (Karl Fischer Titration)',
+        value: 0.28,
+        unit: 'wt%',
+        target: '< 0.50 wt% [Target: 0.28 wt%]',
+        status: 'IN SPEC'
+      },
+      sensor3: {
+        tag: 'TI-101',
+        label: 'Organic Layer Temperature',
+        value: 23.3,
+        unit: '°C',
+        target: '20.0 °C – 25.0 °C',
+        status: 'IN SPEC'
+      }
+    }
+  },
+  {
+    stepNumber: 10,
+    operationNo: 10,
+    operationCode: 'OP-10',
+    operationName: 'Collect designated API-containing phase',
+    machineCode: 'EX-101',
+    machineName: 'Extraction Vessel EX-101',
+    workCenter: 'WC-API-EXT',
+    categoryTag: 'TRANSFER',
+    status: 'QUEUED',
+    progressPct: 0,
+    coreInstruction: 'Collect designated API-containing phase with valve interlock and collection traceability.',
+    actionProtocol: 'Arm valve interlock and collection traceability. Automated shutoff trips if conductive breakthrough exceeds 0.20 mS/cm. Recover target 43.0–45.0 L into nitrogen-inerted receiver RX-102. Electronic signature required.',
+    holdSpec: '25.0 min',
+    bomComponents: [],
+    cpps: {
+      sensor1: {
+        tag: 'FIT-103',
+        label: 'Recovered API Phase Volume',
+        value: 43.8,
+        unit: 'L',
+        target: '43.0 L – 45.0 L',
+        status: 'IN SPEC',
+        trendLabel: 'Interlock Armed'
+      },
+      sensor2: {
+        tag: 'VLV-101',
+        label: 'Conductivity Interlock Cutoff Sensor',
+        value: 0.08,
+        unit: 'mS/cm',
+        target: '< 0.20 mS/cm Interlock Trigger',
+        status: 'IN SPEC'
+      },
+      sensor3: {
+        tag: 'WT-RX102',
+        label: 'Receiver RX-102 Collected Mass',
+        value: 41.2,
+        unit: 'kg',
+        target: '40.0 kg – 43.0 kg',
+        status: 'IN SPEC'
+      }
+    }
+  },
+  {
+    stepNumber: 11,
+    operationNo: 11,
+    operationCode: 'OP-11',
+    operationName: 'Perform final in-process QC',
+    machineCode: 'EX-101',
+    machineName: 'Extraction Vessel EX-101',
+    workCenter: 'WC-API-EXT',
+    categoryTag: 'QC',
+    status: 'QUEUED',
+    progressPct: 0,
+    coreInstruction: 'Perform final in-process QC with required tests and specifications.',
+    actionProtocol: 'Critical Process Parameters: Water content helps quantify moisture in the recovered organic phase (Target 0.28 wt% [< 0.50 wt%]). Residual solvent / assay supports API-intermediate quality assessment (HPLC Purity ≥ 99.0% [Target 99.4%]). Electronic signature required.',
+    holdSpec: '35.0 min',
+    bomComponents: [],
+    cpps: {
+      sensor1: {
+        tag: 'HPLC-01',
+        label: 'HPLC API Intermediate Assay / Purity',
+        value: 99.4,
+        unit: '%',
+        target: '≥ 99.0% [Target: 99.4%]',
+        status: 'IN SPEC',
+        trendLabel: 'High Purity Peak'
+      },
+      sensor2: {
+        tag: 'KF-02',
+        label: 'Water Content by Karl Fischer',
+        value: 0.28,
+        unit: 'wt%',
+        target: '< 0.50 wt% [Target: 0.28 wt%]',
+        status: 'IN SPEC'
+      },
+      sensor3: {
+        tag: 'GC-01',
+        label: 'Residual Solvent Chromatographic Purity',
+        value: 99.7,
+        unit: '%',
+        target: '≥ 99.5%',
+        status: 'IN SPEC'
+      }
+    }
+  },
+  {
+    stepNumber: 12,
+    operationNo: 12,
+    operationCode: 'OP-12',
+    operationName: 'QA review and approval',
+    machineCode: 'EX-101',
+    machineName: 'Extraction Vessel EX-101',
+    workCenter: 'WC-API-EXT',
+    categoryTag: 'APPROVE',
+    status: 'QUEUED',
+    progressPct: 0,
+    coreInstruction: 'QA review and approval with electronic signature.',
+    actionProtocol: 'QA Officer reviews all 9 critical parameters (Image 2) and step verifications (Image 1). Digital signature applied under 21 CFR Part 11 with reason "QA Batch Release & Process Conformance Approval". Electronic signature required.',
+    holdSpec: '15.0 min',
+    bomComponents: [],
+    cpps: {
+      sensor1: {
+        tag: 'QA-REV',
+        label: 'Analytical CoA Review Status',
+        value: 100,
+        unit: '% PASS',
+        target: '100% Conforming',
+        status: 'IN SPEC',
+        trendLabel: 'Full Compliance'
+      },
+      sensor2: {
+        tag: 'ESIG-QA',
+        label: '21 CFR Part 11 QA Electronic Signature',
+        value: 1,
+        unit: 'AUTH',
+        target: 'Authorized Signoff',
+        status: 'IN SPEC'
+      },
+      sensor3: {
+        tag: 'DEVIATION',
+        label: 'Critical Batch Deviations Count',
+        value: 0,
+        unit: 'COUNT',
+        target: '0 Unresolved Deviations',
+        status: 'IN SPEC'
+      }
+    }
+  },
+  {
+    stepNumber: 13,
+    operationNo: 13,
+    operationCode: 'OP-13',
+    operationName: 'Transfer to next processing stage',
+    machineCode: 'EX-101',
+    machineName: 'Extraction Vessel EX-101',
+    workCenter: 'WC-API-EXT',
+    categoryTag: 'TRANSFER',
+    status: 'QUEUED',
+    progressPct: 0,
+    coreInstruction: 'Transfer to next processing stage with WO step completion and genealogy.',
+    actionProtocol: 'Close WO-API-2026-001 extraction campaign. Record final batch genealogy link to downstream crystallization feed tank CR-201. Affix tamper-evident electronic batch passport. Electronic signature required.',
+    holdSpec: '20.0 min',
+    bomComponents: [],
+    cpps: {
+      sensor1: {
+        tag: 'TRANSFER-VOL',
+        label: 'Total Volume Discharged to Downstream',
+        value: 43.8,
+        unit: 'L',
+        target: '43.0 L – 45.0 L',
+        status: 'IN SPEC',
+        trendLabel: 'Transfer Complete'
+      },
+      sensor2: {
+        tag: 'LINE-CLEAR',
+        label: 'Transfer Line Clean & Cleared Status',
+        value: 100,
+        unit: '%',
+        target: '100% Cleared',
+        status: 'IN SPEC'
+      },
+      sensor3: {
+        tag: 'GENEALOGY',
+        label: 'Batch Genealogy ERP / MES Synchronized',
+        value: 100,
+        unit: '%',
+        target: '100% Synchronized',
+        status: 'IN SPEC'
+      }
+    }
+  }
+];
+
 /**
  * @component Operator
  * @description Real-time shopfloor execution console. Manages machine telemetry,
@@ -461,6 +1030,8 @@ const DEFAULT_OPERATIONS: OperationStep[] = [
  */
 export default function Operator() {
   const { token, user } = useShopfloorStore();
+
+  const isPharmaUser = user?.username?.startsWith('pharma') || user?.plantId === 'a0000000-0003-3333-3333-333333333333';
 
   // Machine and Work Order state
   const [machines, setMachines] = useState<any[]>([
@@ -471,10 +1042,24 @@ export default function Operator() {
     { id: 'e1111111-0006-1111-1111-111111111111', name: 'Visual Optical Inspection Station 01', code: 'QC-01', status: 'RUNNING' },
     { id: 'e1111111-0007-1111-1111-111111111111', name: 'Assembly Station 01', code: 'ASM-01', status: 'RUNNING' },
     { id: 'e1111111-0008-1111-1111-111111111111', name: 'Functional Torque & Load Test Bench 01', code: 'TEST-01', status: 'RUNNING' },
-    { id: 'e1111111-0009-1111-1111-111111111111', name: 'Coordinate Measuring Machine 01', code: 'QC-02', status: 'RUNNING' }
+    { id: 'e1111111-0009-1111-1111-111111111111', name: 'Coordinate Measuring Machine 01', code: 'QC-02', status: 'RUNNING' },
+    { id: 'e1111111-0010-1111-1111-111111111111', name: 'Extraction Vessel EX-101', code: 'EX-101', status: 'RUNNING' }
   ]);
 
   const [workOrders, setWorkOrders] = useState<any[]>([
+    {
+      id: '80111111-0008-1111-1111-111111111111',
+      woNumber: 'WO-API-2026-001',
+      productSku: 'API-INT-X',
+      productName: 'API Intermediate X',
+      targetQuantity: 100,
+      completedQuantity: 45,
+      scrapQuantity: 0,
+      status: 'IN_PROGRESS',
+      recipeCode: 'RCP-API-LLE-001 Rev A',
+      lineCode: 'LINE-LLE-01',
+      manufacturer: 'Ugam Biopharma Solutions Ltd'
+    },
     {
       id: '80111111-0007-1111-1111-111111111111',
       woNumber: 'WO-SEAT-2026-001',
@@ -556,10 +1141,16 @@ export default function Operator() {
     }
   ]);
 
-  const [selectedWoId, setSelectedWoId] = useState<string>('80111111-0007-1111-1111-111111111111');
-  const [selectedMachineId, setSelectedMachineId] = useState<string>('e1111111-0001-1111-1111-111111111111');
-  const [operations, setOperations] = useState<OperationStep[]>(DEFAULT_OPERATIONS);
-  const [activeStepIndex, setActiveStepIndex] = useState<number>(0); // 0 = Step 1 (CUT-01)
+  const [selectedWoId, setSelectedWoId] = useState<string>(
+    isPharmaUser ? '80111111-0008-1111-1111-111111111111' : '80111111-0007-1111-1111-111111111111'
+  );
+  const [selectedMachineId, setSelectedMachineId] = useState<string>(
+    isPharmaUser ? 'e1111111-0010-1111-1111-111111111111' : 'e1111111-0001-1111-1111-111111111111'
+  );
+  const [operations, setOperations] = useState<OperationStep[]>(
+    isPharmaUser ? PHARMA_LLE_OPERATIONS : DEFAULT_OPERATIONS
+  );
+  const [activeStepIndex, setActiveStepIndex] = useState<number>(isPharmaUser ? 4 : 0); // Step 5 (MIX) is RUNNING for Pharma, or Step 1 for Default
 
   // Restore completed step progress from localStorage for active work order
   useEffect(() => {
@@ -572,12 +1163,23 @@ export default function Operator() {
         if (Array.isArray(parsed.operations) && typeof parsed.activeStepIndex === 'number') {
           setOperations(parsed.operations);
           setActiveStepIndex(parsed.activeStepIndex);
+          return;
         }
       }
     } catch (e) {
       console.warn('Could not restore operator progress:', e);
     }
-  }, [selectedWoId]);
+
+    const wo = workOrders.find((w) => w.id === selectedWoId);
+    if (wo?.woNumber === 'WO-API-2026-001' || wo?.recipeCode?.includes('RCP-API-LLE') || wo?.productSku === 'API-INT-X') {
+      setOperations(PHARMA_LLE_OPERATIONS);
+      setActiveStepIndex(4);
+      setSelectedMachineId('e1111111-0010-1111-1111-111111111111');
+    } else {
+      setOperations(DEFAULT_OPERATIONS);
+      setActiveStepIndex(1);
+    }
+  }, [selectedWoId, workOrders]);
 
   const saveOperatorProgress = (newOps: OperationStep[], newIndex: number) => {
     if (!selectedWoId) return;
@@ -672,8 +1274,11 @@ export default function Operator() {
           const woData = await woRes.json();
           if (Array.isArray(woData) && woData.length > 0) {
             setWorkOrders(woData);
+            const pharmaWo = (user?.username?.startsWith('pharma') || user?.plantId === 'a0000000-0003-3333-3333-333333333333')
+              ? woData.find((w: any) => w.woNumber === 'WO-API-2026-001' || w.productSku === 'API-INT-X')
+              : null;
             const seatWo = woData.find((w: any) => w.woNumber === 'WO-SEAT-2026-001' || w.productSku === 'SEAT-DRV-101');
-            const inProg = seatWo || woData.find((w: any) => w.status === 'IN_PROGRESS') || woData[0];
+            const inProg = pharmaWo || seatWo || woData.find((w: any) => w.status === 'IN_PROGRESS') || woData[0];
             if (inProg) {
               setSelectedWoId(inProg.id);
             }
@@ -742,6 +1347,40 @@ export default function Operator() {
    */
   const handleWoChange = (id: string) => {
     setSelectedWoId(id);
+    const wo = workOrders.find((w) => w.id === id);
+    if (wo?.woNumber === 'WO-API-2026-001' || wo?.recipeCode?.includes('RCP-API-LLE') || wo?.productSku === 'API-INT-X') {
+      const savedKey = 'ugam_op_progress_' + id;
+      const saved = localStorage.getItem(savedKey);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed.operations) && typeof parsed.activeStepIndex === 'number') {
+            setOperations(parsed.operations);
+            setActiveStepIndex(parsed.activeStepIndex);
+            setSelectedMachineId('e1111111-0010-1111-1111-111111111111');
+            return;
+          }
+        } catch {}
+      }
+      setOperations(PHARMA_LLE_OPERATIONS);
+      setActiveStepIndex(4);
+      setSelectedMachineId('e1111111-0010-1111-1111-111111111111');
+    } else {
+      const savedKey = 'ugam_op_progress_' + id;
+      const saved = localStorage.getItem(savedKey);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed.operations) && typeof parsed.activeStepIndex === 'number') {
+            setOperations(parsed.operations);
+            setActiveStepIndex(parsed.activeStepIndex);
+            return;
+          }
+        } catch {}
+      }
+      setOperations(DEFAULT_OPERATIONS);
+      setActiveStepIndex(1);
+    }
   };
 
   const activeOperation = operations[activeStepIndex] || operations[0];
@@ -1029,6 +1668,56 @@ export default function Operator() {
         </div>
       )}
 
+      {/* Pharmaceutical API Manufacturing Work Order Card (Image 3) */}
+      {(activeWo?.woNumber === 'WO-API-2026-001' || activeWo?.productSku === 'API-INT-X') && (
+        <div className="bg-white dark:bg-[#142A45] border-2 border-cyan-500/30 rounded-2xl p-4 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                PHARMACEUTICAL API MANUFACTURING
+              </div>
+              <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-0.5">
+                {activeWo.woNumber}
+              </h1>
+            </div>
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/60">
+              In Progress
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-3 gap-x-6 mt-4 pt-3 border-t border-slate-200 dark:border-[#1F3A5C]/60 text-xs">
+            <div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Product</div>
+              <div className="font-bold text-slate-900 dark:text-white mt-0.5">{activeWo.productName || 'API Intermediate X'}</div>
+            </div>
+            <div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Process</div>
+              <div className="font-bold text-slate-900 dark:text-white mt-0.5">Liquid–Liquid Extraction</div>
+            </div>
+            <div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Recipe</div>
+              <div className="font-bold text-slate-900 dark:text-white mt-0.5">{activeWo.recipeCode?.split(' ')[0] || 'RCP-API-LLE-001'}</div>
+            </div>
+            <div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Batch size</div>
+              <div className="font-bold text-slate-900 dark:text-white mt-0.5">{activeWo.targetQuantity} kg (planned)</div>
+            </div>
+            <div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Equipment</div>
+              <div className="font-bold text-slate-900 dark:text-white mt-0.5">Extraction Vessel EX-101</div>
+            </div>
+            <div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Verification</div>
+              <div className="font-bold text-cyan-600 dark:text-cyan-400 mt-0.5">Conductivity + QC</div>
+            </div>
+          </div>
+
+          <div className="mt-3 pt-2 text-[11px] text-slate-400 dark:text-slate-500 italic">
+            Illustrative demo data, not a specific API formulation or validated process.
+          </div>
+        </div>
+      )}
+
       {/* ========================================================================= */}
       {/* 2. MASTER RECIPE PROCESS SEQUENCE WIDGET                                  */}
       {/* ========================================================================= */}
@@ -1037,7 +1726,7 @@ export default function Operator() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-200 dark:border-[#1F3A5C] gap-2">
           <h2 className="text-xs font-bold text-slate-900 dark:text-white tracking-wide uppercase flex items-center gap-2">
             <Layers size={15} className="text-blue-500" />
-            <span>MASTER RECIPE PROCESS SEQUENCE — {activeRecipeCode} (8 OPERATIONS)</span>
+            <span>MASTER RECIPE PROCESS SEQUENCE — {activeRecipeCode} ({operations.length} OPERATIONS)</span>
           </h2>
 
           <div className="flex items-center gap-3 text-[11px] font-bold text-slate-600 dark:text-slate-300">
@@ -1057,7 +1746,7 @@ export default function Operator() {
         <div className="space-y-1.5 bg-slate-50 dark:bg-[#102237] p-2.5 rounded-lg border border-slate-200 dark:border-[#1F3A5C]">
           <div className="flex justify-between items-center text-xs font-bold">
             <span className="text-slate-800 dark:text-slate-200">
-              Overall Batch Progress: <span className="text-blue-600 dark:text-blue-400">{currentGood.toLocaleString()}</span> / {targetQty.toLocaleString()} PCS
+              Overall Batch Progress: <span className="text-blue-600 dark:text-blue-400">{currentGood.toLocaleString()}</span> / {targetQty.toLocaleString()} {activeWo?.productSku === 'API-INT-X' ? 'KG' : 'PCS'}
             </span>
             <span className="text-blue-600 dark:text-blue-400 font-bold">{progressPct}%</span>
           </div>
@@ -1070,14 +1759,14 @@ export default function Operator() {
           </div>
 
           <div className="flex flex-wrap justify-between items-center text-[11px] font-semibold text-slate-600 dark:text-slate-400 pt-0.5">
-            <span>Target: <strong className="text-slate-800 dark:text-white">{targetQty.toLocaleString()} PCS</strong></span>
+            <span>Target: <strong className="text-slate-800 dark:text-white">{targetQty.toLocaleString()} {activeWo?.productSku === 'API-INT-X' ? 'KG' : 'PCS'}</strong></span>
             <span>Batch Yield: <strong className="text-emerald-500 font-bold">{batchYield}%</strong></span>
             <span>Active Step: <strong className="text-blue-600 dark:text-blue-400">Step {activeStepIndex + 1} ({activeOperation.operationName})</strong></span>
           </div>
         </div>
 
-        {/* 8-Step Interactive Sequence Cards Grid (Segmented Card Styling) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+        {/* Interactive Sequence Cards Grid (Segmented Card Styling) */}
+        <div className={`grid grid-cols-2 sm:grid-cols-4 ${operations.length > 8 ? 'md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-13' : 'lg:grid-cols-8'} gap-2`}>
           {operations.map((op, idx) => {
             const isSelected = idx === activeStepIndex;
             const isCompleted = op.status === 'COMPLETED';

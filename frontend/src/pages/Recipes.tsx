@@ -134,7 +134,12 @@ const FALLBACK_MATERIALS = [
   { id: '6', materialCode: 'INT-002', materialName: 'Heat Treated Pin', materialType: 'INTERMEDIATE', uom: 'PCS', imagePath: '/uploads/heat_treated_pin.jpg' },
   { id: '7', materialCode: 'INT-003', materialName: 'Rubber Seal', materialType: 'INTERMEDIATE', uom: 'PCS', imagePath: '/uploads/rubber_seal.jpg' },
   { id: '8', materialCode: 'FG-001', materialName: 'Automotive Control Pin', materialType: 'FINISHED_GOOD', uom: 'PCS', imagePath: '/uploads/control_pin.jpg' },
-  { id: '9', materialCode: 'FG-002', materialName: 'Hydraulic Seal Assembly', materialType: 'FINISHED_GOOD', uom: 'PCS', imagePath: '/uploads/hydraulic_seal.jpg' }
+  { id: '9', materialCode: 'FG-002', materialName: 'Hydraulic Seal Assembly', materialType: 'FINISHED_GOOD', uom: 'PCS', imagePath: '/uploads/hydraulic_seal.jpg' },
+  { id: '10', materialCode: 'INT-CRUDE-001', materialName: 'Crude API Intermediate Solution', materialType: 'INTERMEDIATE', uom: 'KG', imagePath: '/uploads/machined_pin.jpg' },
+  { id: '11', materialCode: 'RM-SOLV-001', materialName: 'Ethyl Acetate Solvent (Pharma Grade)', materialType: 'RAW_MATERIAL', uom: 'L', imagePath: '/uploads/machined_pin.jpg' },
+  { id: '12', materialCode: 'RM-WTR-001', materialName: 'USP Purified Water', materialType: 'RAW_MATERIAL', uom: 'L', imagePath: '/uploads/machined_pin.jpg' },
+  { id: '13', materialCode: 'RM-SALT-001', materialName: 'Sodium Chloride (USP Grade)', materialType: 'RAW_MATERIAL', uom: 'KG', imagePath: '/uploads/machined_pin.jpg' },
+  { id: '14', materialCode: 'API-INT-X', materialName: 'API Intermediate X', materialType: 'FINISHED_GOOD', uom: 'KG', imagePath: '/uploads/control_pin.jpg' }
 ];
 
 const FALLBACK_RECIPES: Recipe[] = [
@@ -238,6 +243,140 @@ const FALLBACK_RECIPES: Recipe[] = [
     ],
     processInstructions: [
       { step: 1, operation_name: 'Ring Insertion', operation_code: 'INSERT', machine_code: 'ASSY-02', work_center: 'WC-ASSY', instruction: 'Insert shaped copper wire into inner elastomer groove using pneumatic press.', cpp: 'Press: 2.5 bar' }
+    ]
+  },
+  {
+    id: 'f1111111-0006-1111-1111-111111111111',
+    recipeCode: 'RCP-API-LLE-001',
+    recipeName: 'Liquid-Liquid Extraction Process',
+    version: 'A',
+    status: 'ACTIVE',
+    plannedYieldPct: 98.5,
+    product: { id: '30111111-0008-1111-1111-111111111111', sku: 'API-INT-X', name: 'API Intermediate X' },
+    masterFormula: 'Biphasic liquid-liquid extraction of crude API intermediate solution using USP grade ethyl acetate and purified water in glass-lined extraction vessel EX-101. Phase separation verified via toroidal conductivity measurement and in-process QC.',
+    bom: [
+      { component_code: 'INT-CRUDE-001', component_name: 'Crude API Intermediate Solution', component_type: 'INTERMEDIATE', quantity: 65, uom: 'KG', purpose: 'API precursor solution' },
+      { component_code: 'RM-SOLV-001', component_name: 'Ethyl Acetate Solvent (Pharma Grade)', component_type: 'RAW', quantity: 45, uom: 'L', purpose: 'Organic extraction solvent' },
+      { component_code: 'RM-WTR-001', component_name: 'USP Purified Water', component_type: 'RAW', quantity: 20, uom: 'L', purpose: 'Aqueous wash phase' }
+    ],
+    processInstructions: [
+      {
+        step: 1,
+        operation_name: 'Verify API intermediate and solvent lots',
+        operation_code: 'VERIFY-LOT',
+        machine_code: 'EX-101',
+        work_center: 'WC-API-EXT',
+        instruction: 'Verify API intermediate and solvent lots by material scan and released status.',
+        cpp: 'Verification: Material scan and released status'
+      },
+      {
+        step: 2,
+        operation_name: 'Verify extraction vessel',
+        operation_code: 'VESSEL-VERIFY',
+        machine_code: 'EX-101',
+        work_center: 'WC-API-EXT',
+        instruction: 'Verify extraction vessel cleaning and equipment status.',
+        cpp: 'Verification: Cleaning and equipment status'
+      },
+      {
+        step: 3,
+        operation_name: 'Charge API intermediate solution',
+        operation_code: 'CHARGE-API',
+        machine_code: 'EX-101',
+        work_center: 'WC-API-EXT',
+        instruction: 'Charge API intermediate solution with quantity verification.',
+        cpp: 'Verification: Quantity verification'
+      },
+      {
+        step: 4,
+        operation_name: 'Add extraction solvent',
+        operation_code: 'CHARGE-SOLV',
+        machine_code: 'EX-101',
+        work_center: 'WC-API-EXT',
+        instruction: 'Add extraction solvent with material identity and quantity verification.',
+        cpp: 'Verification: Material identity and quantity'
+      },
+      {
+        step: 5,
+        operation_name: 'Mix phases',
+        operation_code: 'MIX-PHASES',
+        machine_code: 'EX-101',
+        work_center: 'WC-API-EXT',
+        instruction: 'Mix phases maintaining RPM, time, and temperature.',
+        cpp: 'Verification: RPM, time, temperature | CPP: Mixing speed 250 RPM, Mixing duration 30 min, Temperature 23.5°C'
+      },
+      {
+        step: 6,
+        operation_name: 'Stop mixing and allow settling',
+        operation_code: 'STOP-SETTLE',
+        machine_code: 'EX-101',
+        work_center: 'WC-API-EXT',
+        instruction: 'Stop mixing and allow settling for specified settling time.',
+        cpp: 'Verification: Settling time | CPP: Settling time 45.0 min allows phases to disengage'
+      },
+      {
+        step: 7,
+        operation_name: 'Verify interface formation',
+        operation_code: 'VERIFY-INTERFACE',
+        machine_code: 'EX-101',
+        work_center: 'WC-API-EXT',
+        instruction: 'Verify interface formation, interface position, and stability.',
+        cpp: 'Verification: Interface position and stability | CPP: Interface level 480 mm prevents wrong phase collection'
+      },
+      {
+        step: 8,
+        operation_name: 'Verify aqueous phase conductivity',
+        operation_code: 'VERIFY-AQ-COND',
+        machine_code: 'EX-101',
+        work_center: 'WC-API-EXT',
+        instruction: 'Verify aqueous phase conductivity within approved conductivity range.',
+        cpp: 'Verification: Approved conductivity range | CPP: Aqueous conductivity 52.4 mS/cm identifies conductive aqueous phase'
+      },
+      {
+        step: 9,
+        operation_name: 'Verify organic phase / carryover',
+        operation_code: 'VERIFY-ORG-COND',
+        machine_code: 'EX-101',
+        work_center: 'WC-API-EXT',
+        instruction: 'Verify organic phase / carryover via conductivity where suitable, plus required QC tests.',
+        cpp: 'Verification: Conductivity where suitable, plus required QC tests | CPP: Organic stream conductivity 0.08 mS/cm, Water content < 0.50 wt%'
+      },
+      {
+        step: 10,
+        operation_name: 'Collect designated API-containing phase',
+        operation_code: 'COLLECT-API',
+        machine_code: 'EX-101',
+        work_center: 'WC-API-EXT',
+        instruction: 'Collect designated API-containing phase with valve interlock and collection traceability.',
+        cpp: 'Verification: Valve interlock and collection traceability'
+      },
+      {
+        step: 11,
+        operation_name: 'Perform final in-process QC',
+        operation_code: 'QC-ASSAY',
+        machine_code: 'EX-101',
+        work_center: 'WC-API-EXT',
+        instruction: 'Perform final in-process QC with required tests and specifications.',
+        cpp: 'Verification: Required tests and specifications | CPP: Water content 0.28 wt%, Residual solvent / assay ≥ 99.0%'
+      },
+      {
+        step: 12,
+        operation_name: 'QA review and approval',
+        operation_code: 'QA-REVIEW',
+        machine_code: 'EX-101',
+        work_center: 'WC-API-EXT',
+        instruction: 'QA review and approval with electronic signature.',
+        cpp: 'Verification: Electronic signature | 21 CFR Part 11 compliant signoff'
+      },
+      {
+        step: 13,
+        operation_name: 'Transfer to next processing stage',
+        operation_code: 'STAGE-TRANSFER',
+        machine_code: 'EX-101',
+        work_center: 'WC-API-EXT',
+        instruction: 'Transfer to next processing stage with WO step completion and genealogy.',
+        cpp: 'Verification: WO step completion and genealogy'
+      }
     ]
   }
 ];
@@ -432,6 +571,63 @@ const INITIAL_BOM_ROWS: EngineeringBomRow[] = [
     component_name: 'NBR Rubber Compound',
     component_image: '/uploads/nbr_rubber.jpg',
     purpose: 'Compression Preform'
+  },
+  {
+    bom_id: 'BOM-API-001',
+    parent_material: 'API-INT-X',
+    revision: 'A',
+    effective_from: '2026-01-01',
+    effective_to: '',
+    status: 'RELEASED',
+    parent_name: 'API Intermediate X',
+    parent_image: '/uploads/machined_pin.jpg',
+    parent_type: 'FINISHED',
+    line_no: 10,
+    component_material: 'INT-CRUDE-001',
+    component_type: 'INTERMEDIATE',
+    qty: 65.0,
+    uom: 'KG',
+    component_name: 'Crude API Intermediate Solution',
+    component_image: '/uploads/machined_pin.jpg',
+    purpose: 'API Precursor Solution'
+  },
+  {
+    bom_id: 'BOM-API-001',
+    parent_material: 'API-INT-X',
+    revision: 'A',
+    effective_from: '2026-01-01',
+    effective_to: '',
+    status: 'RELEASED',
+    parent_name: 'API Intermediate X',
+    parent_image: '/uploads/machined_pin.jpg',
+    parent_type: 'FINISHED',
+    line_no: 20,
+    component_material: 'RM-SOLV-001',
+    component_type: 'RAW',
+    qty: 45.0,
+    uom: 'L',
+    component_name: 'Ethyl Acetate Solvent (Pharma Grade)',
+    component_image: '/uploads/machined_pin.jpg',
+    purpose: 'Organic Extraction Solvent'
+  },
+  {
+    bom_id: 'BOM-API-001',
+    parent_material: 'API-INT-X',
+    revision: 'A',
+    effective_from: '2026-01-01',
+    effective_to: '',
+    status: 'RELEASED',
+    parent_name: 'API Intermediate X',
+    parent_image: '/uploads/machined_pin.jpg',
+    parent_type: 'FINISHED',
+    line_no: 30,
+    component_material: 'RM-WTR-001',
+    component_type: 'RAW',
+    qty: 20.0,
+    uom: 'L',
+    component_name: 'USP Purified Water',
+    component_image: '/uploads/machined_pin.jpg',
+    purpose: 'Aqueous Wash Phase'
   }
 ];
 
@@ -484,7 +680,8 @@ export default function Recipes() {
     { id: '30111111-0005-1111-1111-111111111111', sku: 'FG-002', name: 'Hydraulic Seal Assembly' },
     { id: '30111111-0001-1111-1111-111111111111', sku: 'INT-001', name: 'Machined Steel Pin' },
     { id: '30111111-0002-1111-1111-111111111111', sku: 'INT-002', name: 'Heat Treated Pin' },
-    { id: '30111111-0003-1111-1111-111111111111', sku: 'INT-003', name: 'Rubber Seal' }
+    { id: '30111111-0003-1111-1111-111111111111', sku: 'INT-003', name: 'Rubber Seal' },
+    { id: '30111111-0008-1111-1111-111111111111', sku: 'API-INT-X', name: 'API Intermediate X' }
   ]);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(FALLBACK_RECIPES[0]);
   const [recipeFilter, setRecipeFilter] = useState<'ALL' | 'ACTIVE' | 'ARCHIVED'>('ACTIVE');
