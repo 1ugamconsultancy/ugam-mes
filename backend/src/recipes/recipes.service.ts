@@ -186,7 +186,7 @@ export class RecipesService {
         mm_comp.image_path as component_image
       FROM bom_header bh
       LEFT JOIN material_master mm_parent ON bh.parent_material = mm_parent.material_code
-      LEFT JOIN bom_component bc ON bh.bom_id = bc.bom_id AND bh.revision = bc.revision
+      LEFT JOIN bom_component bc ON bh.bom_id = bc.bom_id
       LEFT JOIN material_master mm_comp ON bc.component_material = mm_comp.material_code
       ${filter}
       ORDER BY bh.bom_id ASC, bh.revision DESC, bc.line_no ASC
