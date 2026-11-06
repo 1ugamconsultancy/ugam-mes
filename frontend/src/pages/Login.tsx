@@ -95,7 +95,7 @@ export default function Login() {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="e.g. pharma_op1, pharma_admin, operator1, superadmin"
+                placeholder="Enter your username"
                 className="w-full bg-[#0D1B2A] border border-[#1F3A5C] rounded-xl py-2.5 pl-10 pr-4 text-white text-sm focus:outline-none focus:border-[#174A7C] placeholder-slate-500 font-medium"
               />
             </div>
@@ -141,46 +141,7 @@ export default function Login() {
           </button>
         </form>
 
-        {/* Quick-Select Demo Accounts */}
-        <div className="mt-6 pt-5 border-t border-slate-700/50">
-          <div className="text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-2 flex items-center justify-between">
-            <span>Quick-Fill Demo Credentials (Password: MES123)</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <button
-              type="button"
-              onClick={() => { setUsername('pharma_op1'); setPassword('MES123'); }}
-              className="px-2.5 py-1.5 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-500/30 text-cyan-300 font-semibold text-left transition text-[11px] cursor-pointer"
-            >
-              💊 <span className="font-bold">pharma_op1</span>
-              <span className="block text-[10px] text-cyan-400/70 font-normal">Pharma Extraction Operator</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => { setUsername('pharma_admin'); setPassword('MES123'); }}
-              className="px-2.5 py-1.5 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-500/30 text-cyan-300 font-semibold text-left transition text-[11px] cursor-pointer"
-            >
-              🏢 <span className="font-bold">pharma_admin</span>
-              <span className="block text-[10px] text-cyan-400/70 font-normal">Pharma Plant Admin</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => { setUsername('operator1'); setPassword('MES123'); }}
-              className="px-2.5 py-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700 text-slate-200 font-semibold text-left transition text-[11px] cursor-pointer"
-            >
-              ⚙️ <span className="font-bold">operator1</span>
-              <span className="block text-[10px] text-slate-400 font-normal">Automotive Line Operator</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => { setUsername('superadmin'); setPassword('MES123'); }}
-              className="px-2.5 py-1.5 rounded-lg bg-amber-950/40 hover:bg-amber-900/50 border border-amber-500/30 text-amber-300 font-semibold text-left transition text-[11px] cursor-pointer"
-            >
-              👑 <span className="font-bold">superadmin</span>
-              <span className="block text-[10px] text-amber-400/70 font-normal">Multi-Plant Executive</span>
-            </button>
-          </div>
-        </div>
+
 
 
       </div>
