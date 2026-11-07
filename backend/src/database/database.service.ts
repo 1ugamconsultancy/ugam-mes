@@ -622,6 +622,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       console.log('🎉 Pharma Liquid-Liquid Extraction Plant, operations, and users fully ensured & linked!');
     } catch (err: any) {
       console.error('Error in autoEnsurePharmaPlantAndUsers:', err?.message || err);
+      throw new Error(`autoEnsurePharmaPlantAndUsers failed: ${err?.message || err}`);
     }
   }
 
