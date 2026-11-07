@@ -611,13 +611,16 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
       // Seed 2 Production Logs for Pharma
       await this.pool.query("DELETE FROM public.production_logs WHERE work_order_id = $1", [woId]);
+      const opUserRes = await this.pool.query("SELECT id FROM public.users WHERE username = 'pharma_op1' LIMIT 1");
+      const opUserId = opUserRes.rowCount && opUserRes.rowCount > 0 ? opUserRes.rows[0].id : null;
+
       await this.pool.query(`
         INSERT INTO public.production_logs (
           id, work_order_id, machine_id, operator_id, timestamp, count_good, count_scrap, plant_id, organization_id
         )
         VALUES 
-        (gen_random_uuid(), $1, 'd1111111-0004-1111-1111-111111111111', '348818bf-4f01-4545-b4d1-6af46a51a858', NOW() - INTERVAL '2 hours', 45, 0, $2, $3)
-      `, [woId, plantId, orgId]);
+        (gen_random_uuid(), $1, $2, $3, NOW() - INTERVAL '2 hours', 45, 0, $4, $5)
+      `, [woId, machineId, opUserId, plantId, orgId]);
 
       console.log('🎉 Pharma Liquid-Liquid Extraction Plant, operations, and users fully ensured & linked!');
     } catch (err: any) {
