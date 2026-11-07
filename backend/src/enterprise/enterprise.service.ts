@@ -479,10 +479,11 @@ export class EnterpriseService {
     try {
       await this.databaseService.runMasterDataScopingMigration();
       await this.databaseService.autoEnsurePharmaPlantAndUsers();
-      const units = await this.databaseService.query("SELECT serial_number, plant_id, product_id, work_order_id FROM public.serialized_units WHERE plant_id = '396c9f46-006d-4ade-82d2-6fd1b5c6c5e5'");
-      return { success: true, count: units.rows.length, units: units.rows };
+      const allUnits = await this.databaseService.query("SELECT count(*) as total, count(*) filter (where plant_id = '396c9f46-006d-4ade-82d2-6fd1b5c6c5e5') as pharma_units, count(*) filter (where serial_number like 'API-%') as api_units, count(*) filter (where plant_id is null) as null_plant FROM public.serialized_units");
+      const sample = await this.databaseService.query("SELECT serial_number, plant_id, work_order_id FROM public.serialized_units WHERE serial_number like 'API-%' LIMIT 5");
+      return { success: true, stats: allUnits.rows[0], sample: sample.rows };
     } catch (e: any) {
-      return { success: false, error: e.message };
+      return { success: false, error: e.message, stack: e.stack };
     }
   }
 

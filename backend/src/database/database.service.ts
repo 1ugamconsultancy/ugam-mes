@@ -581,14 +581,16 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
       for (const su of pharmaSerials) {
         await this.pool.query("DELETE FROM public.serialized_units WHERE serial_number = $1", [su.sn]);
-        await this.pool.query(`
+        const insertRes = await this.pool.query(`
           INSERT INTO public.serialized_units (
             id, work_order_id, product_id, serial_number, status, current_operation_no, current_work_center, warehouse_location, plant_id, organization_id, created_at, updated_at
           )
           VALUES (
             gen_random_uuid(), $1, $2, $3, $4, $5, 'WC-API-EXT', $6, $7, $8, NOW(), NOW()
           )
+          RETURNING id, serial_number, plant_id
         `, [woId, productId, su.sn, su.status, su.op, su.loc, plantId, orgId]);
+        console.log(`Inserted unit: ${su.sn}, plant: ${plantId}, returned: ${insertRes.rowCount}`);
 
         // Seed 5W1H Genealogy Events for this unit
         await this.pool.query("DELETE FROM public.product_genealogy_events WHERE unit_serial = $1", [su.sn]);
