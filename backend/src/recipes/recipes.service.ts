@@ -209,7 +209,7 @@ export class RecipesService {
     await this.recipeRepo.query(
       `INSERT INTO bom_header (bom_id, parent_material, revision, effective_from, status, plant_id, organization_id)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
-       ON CONFLICT (bom_id, revision) DO UPDATE 
+       ON CONFLICT (bom_id) DO UPDATE 
        SET parent_material = EXCLUDED.parent_material, effective_from = EXCLUDED.effective_from, status = EXCLUDED.status, plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id`,
       [bom_id, parent_material, revision, effective_from, status, plantId, organizationId]
     );

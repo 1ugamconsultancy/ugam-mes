@@ -443,7 +443,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       await this.pool.query(`
         INSERT INTO public.bom_header (bom_id, parent_material, revision, effective_from, effective_to, status, plant_id, organization_id)
         VALUES ('BOM-API-001', 'API-INT-X', 'A', '2026-01-01', NULL, 'RELEASED', $1, $2)
-        ON CONFLICT (bom_id, revision) DO UPDATE SET plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
+        ON CONFLICT (bom_id) DO UPDATE SET plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
       `, [plantId, orgId]);
 
       await this.pool.query(`
@@ -459,7 +459,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       await this.pool.query(`
         INSERT INTO public.routing_header (routing_id, material_code, revision, description, status, plant_id, organization_id)
         VALUES ('RT-API-001', 'API-INT-X', 'A', '13-Step GMP Liquid-Liquid Extraction Train', 'RELEASED', $1, $2)
-        ON CONFLICT (routing_id, revision) DO UPDATE SET plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
+        ON CONFLICT (routing_id) DO UPDATE SET plant_id = EXCLUDED.plant_id, organization_id = EXCLUDED.organization_id
       `, [plantId, orgId]);
 
       await this.pool.query(`
