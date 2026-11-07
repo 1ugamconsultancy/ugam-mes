@@ -560,6 +560,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       const woId = existingWo.rowCount && existingWo.rowCount > 0 ? existingWo.rows[0].id : '80111111-0008-1111-1111-111111111111';
 
       // Seed Finished Goods Inventory Balance for Pharma
+      await this.pool.query("DELETE FROM public.inventory_balances WHERE lot_number = 'LOT-API-2026-001' OR id = '90111111-0009-1111-1111-111111111111'");
       await this.pool.query(`
         INSERT INTO public.inventory_balances (
           id, plant_id, organization_id, product_id, lot_number, quantity, wip_status, location_code, created_at, updated_at
@@ -567,7 +568,6 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         VALUES (
           '90111111-0009-1111-1111-111111111111', $1, $2, $3, 'LOT-API-2026-001', 45.0000, 'RELEASED', 'WH-PHARMA-FG / RACK-01', NOW(), NOW()
         )
-        ON CONFLICT (lot_number) DO UPDATE SET plant_id = $1, organization_id = $2
       `, [plantId, orgId, productId]);
 
       // Seed 5 Serialized Units for Pharma
