@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { createHash } from 'crypto';
+import { BadRequestException } from '@nestjs/common';
+import { jsPDF } from 'jspdf';
 import { DatabaseService } from '../database/database.service';
 
 export interface TestCheckResult {
@@ -308,5 +310,66 @@ export class ValidationEngineService {
       },
       checks
     };
+  }
+
+  /** Re-computes the manifest hash; used to reject altered dossiers before rendering. */
+  verifyDossier(d: ValidationDossier): boolean {
+    if (!d || !Array.isArray(d.checks) || !d.manifestSha256) return false;
+    const hash = createHash('sha256').update(JSON.stringify(d.checks)).digest('hex');
+    return hash === d.manifestSha256;
+  }
+
+  renderPdf(d: ValidationDossier): Buffer {
+    if (!this.verifyDossier(d)) {
+      throw new BadRequestException('Dossier integrity check failed: SHA-256 does not match results');
+    }
+    const doc = new jsPDF();
+    const W = 190;
+    let y = 18;
+    const ensure = (h: number) => { if (y + h > 280) { doc.addPage(); y = 18; } };
+    const text = (t: string, size = 9, bold = false, color: [number, number, number] = [30, 30, 30]) => {
+      doc.setFont('helvetica', bold ? 'bold' : 'normal');
+      doc.setFontSize(size);
+      doc.setTextColor(...color);
+      const lines = doc.splitTextToSize(String(t), W - 10);
+      ensure(lines.length * (size * 0.45) + 2);
+      doc.text(lines, 10, y);
+      y += lines.length * (size * 0.45) + 2;
+    };
+
+    text('System Qualification Report (IQ / OQ / PQ)', 16, true);
+    text('UGAM Next Gen MES', 10, false, [90, 90, 90]);
+    y += 2;
+    text('Execution ID: ' + d.executionId, 9, true);
+    text('Executed: ' + d.executedAt + '   By: ' + d.executedBy);
+    text('Classification: ' + d.gampCategory);
+    text('Overall result: ' + d.overallStatus, 11, true,
+      d.overallStatus === 'QUALIFIED' ? [5, 120, 80] : [190, 30, 30]);
+    text('Summary: ' + d.summary.passedTests + '/' + d.summary.totalTests + ' passed, ' +
+      d.summary.failedTests + ' failed.  IQ ' + d.summary.iqScorePct + '%  OQ ' +
+      d.summary.oqScorePct + '%  PQ ' + d.summary.pqScorePct + '%');
+    text('Results SHA-256: ' + d.manifestSha256, 7, false, [90, 90, 90]);
+    y += 3;
+
+    for (const c of d.checks) {
+      ensure(24);
+      const col: [number, number, number] = c.status === 'PASSED' ? [5, 120, 80] : c.status === 'FAILED' ? [190, 30, 30] : [180, 110, 0];
+      text('[' + c.status + '] ' + c.id + ' - ' + c.title, 10, true, col);
+      text('Requirement: ' + c.requirementRef, 8, false, [90, 90, 90]);
+      text(c.description, 9);
+      text('Evidence: ' + JSON.stringify(c.evidence) + '  (' + c.executionTimeMs + ' ms)', 7, false, [90, 90, 90]);
+      y += 2;
+    }
+
+    ensure(30);
+    y += 4;
+    text('Notes', 10, true);
+    text('WARNING results denote checks that are not fully automated and require manual witness testing. ' +
+      'This automated report supports, but does not replace, a formal validation package reviewed and approved by Quality Assurance.', 8);
+    y += 6;
+    text('Reviewed by (QA): ______________________    Date: ______________', 9);
+    text('Approved by:      ______________________    Date: ______________', 9);
+
+    return Buffer.from(doc.output('arraybuffer'));
   }
 }

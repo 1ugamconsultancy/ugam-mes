@@ -53,6 +53,27 @@ export default function ValidationHub() {
     }
   };
 
+  const downloadPdf = async () => {
+    if (!dossier) return;
+    setError('');
+    try {
+      const res = await fetch(getApiUrl('/compliance/validation/pdf'), {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(dossier),
+      });
+      if (!res.ok) throw new Error(`PDF export failed (${res.status})`);
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${dossier.executionId}.pdf`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch (e: any) {
+      setError(e.message || 'PDF export failed');
+    }
+  };
+
   const download = () => {
     if (!dossier) return;
     const blob = new Blob([JSON.stringify(dossier, null, 2)], { type: 'application/json' });
@@ -76,9 +97,14 @@ export default function ValidationHub() {
             {loading ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />} Run Qualification
           </button>
           {dossier && (
-            <button onClick={download} className="flex items-center gap-2 px-4 py-2 rounded-lg border font-bold">
-              <Download size={16} /> Export JSON
-            </button>
+            <>
+              <button onClick={downloadPdf} className="flex items-center gap-2 px-4 py-2 rounded-lg border font-bold">
+                <Download size={16} /> Export PDF
+              </button>
+              <button onClick={download} className="flex items-center gap-2 px-4 py-2 rounded-lg border font-bold">
+                <Download size={16} /> JSON
+              </button>
+            </>
           )}
         </div>
       </div>

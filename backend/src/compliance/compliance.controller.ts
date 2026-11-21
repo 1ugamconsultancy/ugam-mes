@@ -16,7 +16,7 @@
  * ============================================================================
  */
 
-import { Controller, Get, Post, Patch, Body, Param, UseGuards, Req, Ip } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, UseGuards, Req, Ip, Res } from '@nestjs/common';
 import { ComplianceService } from './compliance.service';
 import { ValidationEngineService } from './validation-engine.service';
 import { AuthGuard } from '../auth/auth.guard';
@@ -34,6 +34,15 @@ export class ComplianceController {
     private readonly complianceService: ComplianceService,
     private readonly validationEngine: ValidationEngineService,
   ) {}
+
+  /** Renders a previously generated dossier to PDF after re-verifying its SHA-256. */
+  @Post('validation/pdf')
+  async validationPdf(@Body() dossier: any, @Res() res: any) {
+    const buffer = this.validationEngine.renderPdf(dossier);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=' + String(dossier.executionId).replace(/[^A-Za-z0-9_-]/g, '') + '.pdf');
+    res.send(buffer);
+  }
 
   /** Runs automated IQ/OQ/PQ checks and returns a hashed qualification dossier. */
   @Post('validation/run')
