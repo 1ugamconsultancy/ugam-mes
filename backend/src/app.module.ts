@@ -16,6 +16,7 @@ import { EbrModule } from './ebr/ebr.module';
 import { DatabaseModule } from './database/database.module';
 import { OpcModule } from './opc/opc.module';
 import { EnterpriseModule } from './enterprise/enterprise.module';
+import { ShadowModule } from './shadow/shadow.module';
 
 const dbUrl = process.env.DATABASE_URL;
 const isCloud = Boolean(
@@ -62,6 +63,7 @@ const isCloud = Boolean(
     EbrModule,
     DatabaseModule,
     OpcModule,
+    ShadowModule,
   ],
   controllers: [AppController],
 })

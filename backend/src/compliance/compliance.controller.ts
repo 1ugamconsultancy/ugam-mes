@@ -18,6 +18,7 @@
 
 import { Controller, Get, Post, Patch, Body, Param, UseGuards, Req, Ip } from '@nestjs/common';
 import { ComplianceService } from './compliance.service';
+import { ValidationEngineService } from './validation-engine.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { Roles } from '../auth/roles.decorator';
 
@@ -29,7 +30,17 @@ import { Roles } from '../auth/roles.decorator';
 @Controller('compliance')
 @UseGuards(AuthGuard)
 export class ComplianceController {
-  constructor(private readonly complianceService: ComplianceService) {}
+  constructor(
+    private readonly complianceService: ComplianceService,
+    private readonly validationEngine: ValidationEngineService,
+  ) {}
+
+  /** Runs automated IQ/OQ/PQ checks and returns a hashed qualification dossier. */
+  @Post('validation/run')
+  async runValidation(@Req() req: any) {
+    const who = req.user?.name || req.user?.username || 'unknown';
+    return this.validationEngine.executeQualification(who);
+  }
 
   // =========================================================================
   // SECTION 1: ELECTRONIC SIGNATURE VALIDATION (21 CFR PART 11)

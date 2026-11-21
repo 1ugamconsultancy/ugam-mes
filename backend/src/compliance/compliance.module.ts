@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ComplianceService } from './compliance.service';
 import { ComplianceController } from './compliance.controller';
+import { ValidationEngineService } from './validation-engine.service';
 import { User } from '../auth/user.entity';
 import {
   ElectronicSignature,
@@ -24,8 +25,8 @@ import {
       DocumentManagement
     ]),
   ],
-  providers: [ComplianceService],
+  providers: [ComplianceService, ValidationEngineService],
   controllers: [ComplianceController],
-  exports: [ComplianceService, TypeOrmModule],
+  exports: [ComplianceService, ValidationEngineService, TypeOrmModule],
 })
 export class ComplianceModule {}

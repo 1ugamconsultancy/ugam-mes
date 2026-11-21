@@ -124,6 +124,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             { path: '/quality', label: 'Quality & SPC', icon: <CheckSquare size={18} /> },
             { path: '/equipment', label: 'Equipment & Calibrations', icon: <Wrench size={18} /> },
             { path: '/compliance', label: 'Compliance & Audits', icon: <ShieldCheck size={18} /> },
+            { path: '/validation', label: 'Validation Hub', icon: <CheckSquare size={18} /> },
+            { path: '/shadow-insight', label: 'Shadow Insight', icon: <Search size={18} /> },
           ]
         },
         {

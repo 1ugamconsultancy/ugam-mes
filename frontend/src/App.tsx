@@ -22,6 +22,8 @@ const Help = lazy(() => import('./pages/Help'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const TrackTrace = lazy(() => import('./pages/TrackTrace'));
 const SuperAdminSettings = lazy(() => import('./pages/SuperAdminSettings'));
+const ValidationHub = lazy(() => import('./pages/ValidationHub'));
+const ShadowInsightPortal = lazy(() => import('./pages/ShadowInsightPortal'));
 
 // Sleek Industrial Loading Spinner during module chunk fetch
 function ModuleLoader() {
@@ -80,6 +82,8 @@ export default function App() {
                     <Route path="recipes" element={<Recipes />} />
                     <Route path="equipment" element={<Equipment />} />
                     <Route path="compliance" element={<Compliance />} />
+                    <Route path="validation" element={<ValidationHub />} />
+                    <Route path="shadow-insight" element={<ShadowInsightPortal />} />
                     <Route path="trace/:tab?" element={<TrackTrace />} />
                     <Route path="help/:tab?" element={<Help />} />
                     <Route path="help" element={<Help />} />
