@@ -41,9 +41,14 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       .then(async () => {
         this.isConnected = true;
         console.log('Successfully connected to PostgreSQL Database Server');
-        await this.autoBootstrapIfEmpty();
-        await this.runMasterDataScopingMigration();
-        await this.autoEnsurePharmaPlantAndUsers();
+        try {
+          await this.autoBootstrapIfEmpty();
+          await this.runMasterDataScopingMigration();
+          await this.autoEnsurePharmaPlantAndUsers();
+        } catch (seedErr: any) {
+          // Seeding problems must not take the whole database offline.
+          console.error('Startup seeding failed (database remains online):', seedErr?.message || seedErr);
+        }
       })
       .catch((err) => {
         this.isConnected = false;
@@ -521,7 +526,8 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
               {"parameter": "Organic stream conductivity", "target": "0.08 mS/cm", "range": "< 0.20 mS/cm", "whyItMatters": "May indicate ionic aqueous carryover, if measurable"},
               {"parameter": "Water content", "target": "0.32% w/w", "range": "< 0.50% w/w", "whyItMatters": "Helps quantify moisture in the recovered organic phase"},
               {"parameter": "Residual solvent / assay", "target": "99.4%", "range": ">= 98.5%", "whyItMatters": "Supports API-intermediate quality assessment"}
-            ]}'
+            ]}',
+            $3, $4
           )
           ON CONFLICT (id) DO UPDATE SET plant_id = $3, organization_id = $4
         `, [recipeId, productId, plantId, orgId]);
