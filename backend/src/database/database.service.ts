@@ -535,6 +535,22 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         `, [recipeId, productId, plantId, orgId]);
       }
 
+      // 15b. Evidence checklist for the released recipe (required by the RELEASE transition).
+      // Derived from the recipe's own steps. Only applied where the stored value is missing or not a valid list.
+      const pharmaEvidenceChecklist = [
+        { id: 'OP01-LOTS', phase: 'PRE_START', kind: 'MANUAL', label: 'OP-01 Verify API intermediate and solvent lots (scan and LIMS release status)' },
+        { id: 'OP02-VESSEL', phase: 'PRE_START', kind: 'MANUAL', label: 'OP-02 Verify extraction vessel EX-101 (cleaning tag, CIP/SIP certificate, pressure integrity)' },
+        { id: 'OP05-MIX', phase: 'EXECUTION', kind: 'MANUAL', label: 'OP-05 Record mixing speed, duration and jacket temperature' },
+        { id: 'OP08-AQ-COND', phase: 'EXECUTION', kind: 'MANUAL', label: 'OP-08 Record aqueous phase conductivity (> 45 mS/cm)' },
+        { id: 'OP09-ORG-COND', phase: 'EXECUTION', kind: 'MANUAL', label: 'OP-09 Record organic phase conductivity (< 0.20 mS/cm)' },
+        { id: 'OP11-IPQC', phase: 'EXECUTION', kind: 'MANUAL', label: 'OP-11 Final in-process QC (moisture and residual solvent assay)' },
+        { id: 'OP12-QA', phase: 'EXECUTION', kind: 'MANUAL', label: 'OP-12 QA review and approval of the batch record' },
+      ];
+      await this.pool.query(
+        "UPDATE public.batch_recipes SET evidence_requirements = $1::jsonb WHERE id = $2 AND (evidence_requirements IS NULL OR jsonb_typeof(evidence_requirements) <> 'array' OR jsonb_array_length(evidence_requirements) = 0)",
+        [JSON.stringify(pharmaEvidenceChecklist), recipeId]
+      );
+
       // 16. Work Order: WO-API-2026-001
       const existingWo = await this.pool.query("SELECT id FROM public.work_orders WHERE wo_number = 'WO-API-2026-001' LIMIT 1");
       if (existingWo.rowCount && existingWo.rowCount > 0) {
