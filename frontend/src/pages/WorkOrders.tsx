@@ -43,9 +43,32 @@ export default function WorkOrders() {
   // Modals and inputs
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newWoNumber, setNewWoNumber] = useState('');
-  const [newSku, setNewSku] = useState('');
+  const [newProductId, setNewProductId] = useState('');
+  const [newRecipeId, setNewRecipeId] = useState('');
   const [newQty, setNewQty] = useState(1000);
+  const [newStart, setNewStart] = useState('');
+  const [newEnd, setNewEnd] = useState('');
+  const [newReason, setNewReason] = useState('');
+  const [creating, setCreating] = useState(false);
   const [productsList, setProductsList] = useState<{ id: string; sku: string; name: string }[]>([]);
+  const [recipesList, setRecipesList] = useState<{ id: string; productId: string; recipeCode: string; recipeName: string; version: string; status: string }[]>([]);
+
+  const toLocalInput = (d: Date) => {
+    const p = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+  };
+  const canCreateWo = user?.role === 'PRODUCTION_MANAGER' || user?.role === 'ADMIN';
+  const openCreate = () => {
+    const now = new Date();
+    setNewStart(toLocalInput(now));
+    setNewEnd(toLocalInput(new Date(now.getTime() + 48 * 60 * 60 * 1000)));
+    setNewWoNumber('');
+    setNewRecipeId('');
+    setNewReason('');
+    setNewQty(1000);
+    setNewProductId(productsList[0]?.id || '');
+    setShowCreateModal(true);
+  };
   
   // Electronic Signature state
   const [showSignModal, setShowSignModal] = useState(false);
@@ -64,10 +87,9 @@ export default function WorkOrders() {
       if (response.ok) {
         const data = await response.json();
         setProductsList(data);
-        if (data.length > 0 && !newSku) {
-          setNewSku(data[0].sku);
-        }
       }
+      const rr = await fetch(getApiUrl('/recipes'), { headers: { Authorization: `Bearer ${token}` } });
+      if (rr.ok) setRecipesList(await rr.json());
     } catch (err) {
       console.error('Error fetching products:', err);
     }
@@ -110,32 +132,44 @@ export default function WorkOrders() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newProductId) { toast.error('Select a product'); return; }
+    const start = new Date(newStart), end = new Date(newEnd);
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) {
+      toast.error('Planned end must be after planned start');
+      return;
+    }
+    if (!Number.isInteger(newQty) || newQty <= 0) { toast.error('Target quantity must be a whole number above 0'); return; }
+    setCreating(true);
     try {
       const response = await fetch(getApiUrl('/work-orders'), {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          woNumber: newWoNumber,
-          productSku: newSku,
+          woNumber: newWoNumber.trim() || undefined,
+          productId: newProductId,
+          recipeId: newRecipeId || undefined,
           targetQuantity: newQty,
-          plannedStart: new Date().toISOString(),
-          plannedEnd: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
-          status: 'PLANNED'
-        })
+          plannedStart: start.toISOString(),
+          plannedEnd: end.toISOString(),
+          reason: newReason.trim() || undefined,
+        }),
       });
       if (response.ok) {
+        const created = await response.json();
+        toast.success(`${created.woNumber} created as PLANNED`);
         setShowCreateModal(false);
-        setNewWoNumber('');
+        setStatusFilter('PLANNED');
         fetchWorkOrders();
       } else {
-        toast.error('Failed to create batch record');
+        const err = await response.json().catch(() => null);
+        const msg = Array.isArray(err?.message) ? err.message.join(', ') : err?.message;
+        toast.error(typeof msg === 'string' && msg ? msg : 'Failed to create work order');
       }
     } catch (err) {
       console.error(err);
-      toast.error('Error creating batch record');
+      toast.error('Error creating work order');
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -282,12 +316,12 @@ export default function WorkOrders() {
             Author and release Master Batch Records (MBR), monitor active batches, and review completed Electronic Batch Records (EBR).
           </p>
         </div>
-        {user?.role !== 'OPERATOR' && (
+        {canCreateWo && (
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={openCreate}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition shadow-lg shadow-blue-600/20"
           >
-            <Plus size={18} /> Initiate MBR Campaign
+            <Plus size={18} /> New Work Order
           </button>
         )}
       </div>
@@ -548,7 +582,7 @@ export default function WorkOrders() {
         <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4 backdrop-blur-sm overflow-y-auto animate-fadeIn">
           <div className="bg-white dark:bg-slate-800 border-2 border-[#174A7C]/25 dark:border-[#174A7C]/35 rounded-xl p-4 max-w-md w-full shadow-2xl space-y-4 my-auto animate-scaleUp">
             <div className="flex justify-between items-center pb-2 border-b dark:border-slate-700/80">
-              <h3 className="text-lg font-bold dark:text-white text-slate-900">Initiate MBR Batch Campaign</h3>
+              <h3 className="text-lg font-bold dark:text-white text-slate-900">New Work Order (Planned)</h3>
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
@@ -559,60 +593,63 @@ export default function WorkOrders() {
             </div>
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Batch Record Number</label>
-                <input
-                  type="text"
-                  required
-                  value={newWoNumber}
-                  onChange={(e) => setNewWoNumber(e.target.value)}
-                  placeholder="e.g. BATCH-2026-0003"
-                  className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-lg p-2.5 text-sm dark:text-white focus:outline-none focus:border-blue-500 text-slate-800"
-                />
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Work Order Number</label>
+                <input type="text" value={newWoNumber} onChange={(e) => setNewWoNumber(e.target.value)}
+                  placeholder="Auto-generated if left blank" className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-lg p-2.5 text-sm dark:text-white focus:outline-none focus:border-blue-500 text-slate-800" />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Product Formula / Master Recipe</label>
-                <select
-                  value={newSku}
-                  onChange={(e) => setNewSku(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-lg p-2.5 text-sm dark:text-white focus:outline-none focus:border-blue-500 text-slate-800"
-                >
-                  {productsList.length > 0 ? (
-                    productsList.map((p) => (
-                      <option key={p.sku} value={p.sku}>
-                        {p.name} ({p.sku})
-                      </option>
-                    ))
-                  ) : (
-                    <option value="FG-001">Automotive Control Pin (FG-001)</option>
-                  )}
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Product</label>
+                <select required value={newProductId} onChange={(e) => { setNewProductId(e.target.value); setNewRecipeId(''); }} className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-lg p-2.5 text-sm dark:text-white focus:outline-none focus:border-blue-500 text-slate-800">
+                  {productsList.length === 0 && <option value="">No products available for this plant</option>}
+                  {productsList.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
+                  ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Target Quantity (PCS)</label>
-                <input
-                  type="number"
-                  required
-                  value={newQty}
-                  onChange={(e) => setNewQty(Number(e.target.value))}
-                  className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-lg p-2.5 text-sm dark:text-white focus:outline-none focus:border-blue-500 text-slate-800"
-                />
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Recipe (optional, can be chosen at release)</label>
+                <select value={newRecipeId} onChange={(e) => setNewRecipeId(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-lg p-2.5 text-sm dark:text-white focus:outline-none focus:border-blue-500 text-slate-800">
+                  <option value="">Select at release</option>
+                  {recipesList
+                    .filter((r) => r.productId === newProductId && ['ACTIVE', 'RELEASED'].includes(r.status))
+                    .map((r) => (
+                      <option key={r.id} value={r.id}>{r.recipeCode} v{r.version} - {r.recipeName}</option>
+                    ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Target Quantity</label>
+                <input type="number" required min={1} step={1} value={newQty} onChange={(e) => setNewQty(Number(e.target.value))} className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-lg p-2.5 text-sm dark:text-white focus:outline-none focus:border-blue-500 text-slate-800" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Planned Start</label>
+                  <input type="datetime-local" required value={newStart} onChange={(e) => setNewStart(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-lg p-2.5 text-sm dark:text-white focus:outline-none focus:border-blue-500 text-slate-800" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Planned End</label>
+                  <input type="datetime-local" required value={newEnd} min={newStart} onChange={(e) => setNewEnd(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-lg p-2.5 text-sm dark:text-white focus:outline-none focus:border-blue-500 text-slate-800" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Note (optional)</label>
+                <input type="text" maxLength={500} value={newReason} onChange={(e) => setNewReason(e.target.value)}
+                  placeholder="Reason recorded in the audit trail" className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-lg p-2.5 text-sm dark:text-white focus:outline-none focus:border-blue-500 text-slate-800" />
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t dark:border-slate-700/80">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 border dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-bold transition hover:bg-slate-100 dark:hover:bg-slate-700/50"
-                >
+                <button type="button" onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2 border dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-bold transition hover:bg-slate-100 dark:hover:bg-slate-700/50">
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition shadow-md shadow-blue-600/10"
-                >
-                  Save Batch MBR
+                <button type="submit" disabled={creating || !newProductId}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white rounded-lg text-xs font-bold transition shadow-md shadow-blue-600/10">
+                  {creating ? 'Creating...' : 'Create Planned Work Order'}
                 </button>
               </div>
             </form>

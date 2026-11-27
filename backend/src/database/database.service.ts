@@ -398,11 +398,13 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         productId = existingProd.rows[0].id;
       } else {
         await this.pool.query(`
-          INSERT INTO public.products (id, sku, name, description, uom, created_at)
-          VALUES ($1, 'API-INT-X', 'API Intermediate X', 'High-Purity Active Pharmaceutical Ingredient Intermediate X (Recovered Organic Phase Solution)', 'KG', NOW())
+          INSERT INTO public.products (id, sku, name, description, uom, created_at, plant_id, organization_id)
+          VALUES ($1, 'API-INT-X', 'API Intermediate X', 'High-Purity Active Pharmaceutical Ingredient Intermediate X (Recovered Organic Phase Solution)', 'KG', NOW(), $2, $3)
           ON CONFLICT (id) DO NOTHING
-        `, [productId]);
+        `, [productId, plantId, orgId]);
       }
+      // Existing installs may have this product without plant scoping; make sure it belongs to the Pharma plant.
+      await this.pool.query("UPDATE public.products SET plant_id = $1, organization_id = $2 WHERE id = $3 AND (plant_id IS DISTINCT FROM $1 OR organization_id IS DISTINCT FROM $2)", [plantId, orgId, productId]);
 
       
       // 10b. Ensure Pharma Vendors

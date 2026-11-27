@@ -24,10 +24,12 @@ export class WorkOrdersController {
     return this.workOrdersService.findById(id);
   }
 
-  @Roles('PRODUCTION_MANAGER', 'SUPERVISOR', 'ADMIN')
+  /** Only roles allowed to PLAN an order may create one (it is saved as PLANNED). */
+  @Roles('PRODUCTION_MANAGER', 'ADMIN')
   @Post()
-  async create(@Body() dto: Partial<WorkOrder>): Promise<WorkOrder> {
-    return this.workOrdersService.create(dto);
+  async create(@Body() body: any): Promise<WorkOrder> {
+    const { woNumber, productId, recipeId, targetQuantity, plannedStart, plannedEnd, reason } = body || {};
+    return this.workOrdersService.create({ woNumber, productId, recipeId, targetQuantity, plannedStart, plannedEnd, reason });
   }
 
   @Roles('PRODUCTION_MANAGER', 'SUPERVISOR', 'OPERATOR', 'ADMIN')
