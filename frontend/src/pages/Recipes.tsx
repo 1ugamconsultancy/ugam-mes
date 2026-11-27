@@ -25,8 +25,9 @@
  * ============================================================================
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useShopfloorStore } from '../context/shopfloorStore';
+import EvidenceChecklistEditor from '../components/EvidenceChecklistEditor';
 import {
   BookOpen,
   Plus,
@@ -102,6 +103,7 @@ interface Recipe {
   processInstructions: ProcessStep[];
   plannedYieldPct: number;
   masterFormula?: string;
+  evidenceRequirements?: any;
   updatedAt?: string;
 }
 
@@ -807,6 +809,7 @@ export default function Recipes() {
    * @function fetchAllData
    * @returns {Promise<void>}
    */
+  const pendingSelectRef = useRef<string | null>(null);
   const fetchAllData = async () => {
     setLoading(true);
     setBomLoading(true);
@@ -826,6 +829,11 @@ export default function Recipes() {
         if (Array.isArray(data) && data.length > 0) {
           setRecipes(data);
           setSelectedRecipe((prev) => {
+            const want = pendingSelectRef.current;
+            if (want) {
+              const picked = data.find((r: Recipe) => r.id === want);
+              if (picked) { pendingSelectRef.current = null; return picked; }
+            }
             if (!prev) return data[0];
             const found = data.find((r: Recipe) => r.id === prev.id);
             return found || data[0];
@@ -1852,6 +1860,13 @@ export default function Recipes() {
                       </div>
                     )}
                   </div>
+
+                  <EvidenceChecklistEditor
+                    recipe={selectedRecipe}
+                    token={token}
+                    canEdit={user?.role === 'PRODUCTION_MANAGER' || user?.role === 'ADMIN'}
+                    onSaved={(newId) => { pendingSelectRef.current = newId; fetchAllData(); }}
+                  />
 
                   {/* Accordion 3: Manufacturing Routing & Process Instructions */}
                   <div className="border-2 border-[#174A7C]/25 dark:border-[#174A7C]/35 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-[#102237]/40 transition">
