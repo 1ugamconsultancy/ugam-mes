@@ -97,6 +97,7 @@ interface UserItem {
   organizationName?: string;
   plantId?: string;
   plantName?: string;
+  isActive?: boolean;
 }
 
 /**
@@ -142,6 +143,23 @@ export default function SuperAdminSettings() {
   const [editingPlant, setEditingPlant] = useState<Partial<Plant> | null>(null);
 
   const [editingUser, setEditingUser] = useState<UserItem | null>(null);
+  const [editOriginal, setEditOriginal] = useState<UserItem | null>(null);
+  const [editFirst, setEditFirst] = useState('');
+  const [editLast, setEditLast] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editActive, setEditActive] = useState(true);
+  const [editPassword, setEditPassword] = useState('');
+  const [savingUser, setSavingUser] = useState(false);
+
+  const openEditUser = (u: UserItem) => {
+    setEditingUser({ ...u });
+    setEditOriginal({ ...u });
+    setEditFirst(u.firstName || '');
+    setEditLast(u.lastName || '');
+    setEditEmail(u.email || '');
+    setEditActive(u.isActive !== false);
+    setEditPassword('');
+  };
 
   // Theme Studio State
   const [selectedThemePlantId, setSelectedThemePlantId] = useState<string>('');
@@ -153,9 +171,9 @@ export default function SuperAdminSettings() {
   // SECTION 1: ROLE GUARD & NOTIFICATION DISPATCH
   // =========================================================================
 
-  // Enforce SUPER_ADMIN and ADMIN Role Authorization
+  // Enterprise governance is restricted to SUPER_ADMIN
   useEffect(() => {
-    if (user && user.role !== 'SUPER_ADMIN' && user.role !== 'ADMIN') {
+    if (user && user.role !== 'SUPER_ADMIN') {
       navigate('/dashboard');
     }
   }, [user, navigate]);
@@ -442,6 +460,52 @@ export default function SuperAdminSettings() {
       }
     } catch (err: any) {
       showToast(err.message || 'Network error', true);
+    }
+  };
+
+  /**
+   * @function handleSaveUser
+   * @description Saves profile, status, password reset and allocation changes in one request.
+   * Only changed fields are sent; the server enforces all access and self-protection rules.
+   */
+  const handleSaveUser = async () => {
+    if (!editingUser || !editOriginal || !token) return;
+    const body: Record<string, any> = {};
+    if (editFirst.trim() !== (editOriginal.firstName || '')) body.firstName = editFirst.trim();
+    if (editLast.trim() !== (editOriginal.lastName || '')) body.lastName = editLast.trim();
+    if (editEmail.trim() !== (editOriginal.email || '')) body.email = editEmail.trim();
+    if (editActive !== (editOriginal.isActive !== false)) body.isActive = editActive;
+    if (editPassword) body.password = editPassword;
+    if (editingUser.role !== editOriginal.role) body.role = editingUser.role;
+    if ((editingUser.plantId || '') !== (editOriginal.plantId || '') || (editingUser.organizationId || '') !== (editOriginal.organizationId || '')) {
+      if (editingUser.plantId) body.plantId = editingUser.plantId;
+      if (editingUser.organizationId) body.organizationId = editingUser.organizationId;
+    }
+    if (Object.keys(body).length === 0) { showToast('No changes to save'); return; }
+    if (body.email !== undefined && !/^\S+@\S+\.\S+$/.test(body.email)) { showToast('Enter a valid email address', true); return; }
+    if (body.password !== undefined && body.password.length < 3) { showToast('Password is too short', true); return; }
+
+    setSavingUser(true);
+    try {
+      const res = await fetch(getApiUrl(`/auth/users/${editingUser.id}`), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        showToast(`User ${editingUser.username} updated`);
+        setEditingUser(null);
+        setEditOriginal(null);
+        await fetchData();
+      } else {
+        const err = await res.json().catch(() => null);
+        const msg = Array.isArray(err?.message) ? err.message.join(', ') : err?.message;
+        showToast(typeof msg === 'string' && msg ? msg : 'Failed to update user', true);
+      }
+    } catch {
+      showToast('Error updating user', true);
+    } finally {
+      setSavingUser(false);
     }
   };
 
@@ -1158,14 +1222,14 @@ export default function SuperAdminSettings() {
                         </div>
                       ) : (
                         <div className="overflow-x-auto">
-                          <table className="w-full text-left text-xs border border-slate-200 dark:border-[#1F3A5C] rounded-lg overflow-hidden bg-white dark:bg-[#102237]">
+                          <table className="w-full text-left text-xs border border-slate-200 dark:border-[#1F3A5C] bg-white dark:bg-[#102237]">
                             <thead className="bg-slate-100 dark:bg-[#0c1a2b] text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-[#1F3A5C]">
                               <tr>
                                 <th className="p-2.5">User Handle & Name</th>
                                 <th className="p-2.5">Email Address</th>
                                 <th className="p-2.5 text-center">System Role</th>
                                 <th className="p-2.5">Assigned Plant Site</th>
-                                <th className="p-2.5 text-right">Site Allocation</th>
+                                <th className="p-2.5 text-right sticky right-0 bg-slate-100 dark:bg-[#0c1a2b] whitespace-nowrap">Actions</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-[#1F3A5C]/60">
@@ -1176,7 +1240,7 @@ export default function SuperAdminSettings() {
                                   <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-[#142A45]/50 transition">
                                     <td className="p-2.5">
                                       <div className="flex items-center gap-2">
-                                        <div className="w-7 h-7 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xs uppercase">
+                                        <div className="w-7 h-7 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 hidden 2xl:flex items-center justify-center font-bold text-xs uppercase">
                                           {u.username.substring(0, 2)}
                                         </div>
                                         <div>
@@ -1189,7 +1253,7 @@ export default function SuperAdminSettings() {
                                         </div>
                                       </div>
                                     </td>
-                                    <td className="p-2.5 text-slate-600 dark:text-slate-300 font-mono text-[11px]">
+                                    <td className="p-2.5 text-slate-600 dark:text-slate-300 font-mono text-[11px] max-w-[8rem] truncate" title={u.email}>
                                       {u.email}
                                     </td>
                                     <td className="p-2.5 text-center">
@@ -1203,14 +1267,14 @@ export default function SuperAdminSettings() {
                                         <span>{userPlant?.name || u.plantName || 'Not Allocated'}</span>
                                       </div>
                                     </td>
-                                    <td className="p-2.5 text-right">
+                                    <td className="p-2.5 text-right sticky right-0 bg-white dark:bg-[#102237] whitespace-nowrap shadow-[-6px_0_8px_-6px_rgba(0,0,0,0.15)]">
                                       <button
-                                        onClick={() => setEditingUser(u)}
+                                        onClick={() => openEditUser(u)}
                                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-bold text-xs transition border border-blue-500/20 cursor-pointer"
-                                        title="Reallocate user to a different plant or change system role"
+                                        title="Edit profile, status, password, plant allocation and role"
                                       >
-                                        <Briefcase size={12} />
-                                        <span>Reallocate</span>
+                                        <Pencil size={12} />
+                                        <span>Edit</span>
                                       </button>
                                     </td>
                                   </tr>
@@ -1684,7 +1748,7 @@ export default function SuperAdminSettings() {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 3: REALLOCATE USER TO PLANT SITE / CHANGE ROLE                      */}
+      {/* MODAL 3: EDIT USER (PROFILE, STATUS, PASSWORD, ALLOCATION, ROLE)            */}
       {/* ========================================================================= */}
       {editingUser && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -1693,7 +1757,7 @@ export default function SuperAdminSettings() {
               <div className="flex items-center gap-2">
                 <Briefcase size={20} className="text-purple-500" />
                 <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                  Reallocate User Site & Permissions
+                  Edit User
                 </h3>
               </div>
               <button
@@ -1713,7 +1777,37 @@ export default function SuperAdminSettings() {
                   <h4 className="font-bold text-xs text-slate-900 dark:text-white">
                     {[editingUser.firstName, editingUser.lastName].filter(Boolean).join(' ') || editingUser.username}
                   </h4>
-                  <p className="font-mono text-[11px] text-slate-400">@{editingUser.username} • {editingUser.email}</p>
+                  <p className="font-mono text-[11px] text-slate-400">@{editingUser.username}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">First Name</label>
+                  <input type="text" value={editFirst} onChange={(e) => setEditFirst(e.target.value)} className="w-full px-3 py-2 bg-slate-50 dark:bg-[#102237] border border-slate-200 dark:border-[#1F3A5C] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Last Name</label>
+                  <input type="text" value={editLast} onChange={(e) => setEditLast(e.target.value)} className="w-full px-3 py-2 bg-slate-50 dark:bg-[#102237] border border-slate-200 dark:border-[#1F3A5C] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Email Address</label>
+                <input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} className="w-full px-3 py-2 bg-slate-50 dark:bg-[#102237] border border-slate-200 dark:border-[#1F3A5C] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Account Status</label>
+                  <select value={editActive ? 'active' : 'inactive'} onChange={(e) => setEditActive(e.target.value === 'active')} className="w-full px-3 py-2 bg-slate-50 dark:bg-[#102237] border border-slate-200 dark:border-[#1F3A5C] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="active">Active (can sign in)</option>
+                    <option value="inactive">Inactive (suspended)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Reset Password <span className="font-normal text-slate-400">(optional)</span></label>
+                  <input type="password" autoComplete="new-password" value={editPassword} onChange={(e) => setEditPassword(e.target.value)} placeholder="Leave blank to keep" className="w-full px-3 py-2 bg-slate-50 dark:bg-[#102237] border border-slate-200 dark:border-[#1F3A5C] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
               </div>
 
@@ -1794,10 +1888,11 @@ export default function SuperAdminSettings() {
                 </button>
                 <button
                   type="button"
-                  onClick={handleSaveUserAllocation}
+                  onClick={handleSaveUser}
+                  disabled={savingUser}
                   className="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/30 transition flex items-center gap-1.5"
                 >
-                  <Save size={14} /> Commit Allocation
+                  <Save size={14} /> {savingUser ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </div>

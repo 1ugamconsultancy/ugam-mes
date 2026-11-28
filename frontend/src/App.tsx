@@ -45,10 +45,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return token ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
-// Route protector for SUPER_ADMIN and ADMIN roles
+// Route protector for SUPER_ADMIN only (enterprise governance)
 const SuperAdminRoute = ({ children }: { children: React.ReactNode }) => {
   const user = useShopfloorStore((state) => state.user);
-  if (!user || (user.role !== 'SUPER_ADMIN' && user.role !== 'ADMIN')) {
+  if (!user || user.role !== 'SUPER_ADMIN') {
     return <Navigate to="/dashboard" replace />;
   }
   return <>{children}</>;

@@ -46,12 +46,12 @@ export class EnterpriseController {
   /**
    * @function getOrganizations
    * @description Retrieves all enterprise organizations with active plant metrics.
-   * Accessible to SUPER_ADMIN and ADMIN roles.
+   * Accessible to SUPER_ADMIN only.
    * 
    * @returns {Promise<Array<object>>} Organizations list
    */
   @UseGuards(AuthGuard)
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Roles('SUPER_ADMIN')
   @Get('organizations')
   async getOrganizations() {
     return this.enterpriseService.getOrganizations();
@@ -65,7 +65,7 @@ export class EnterpriseController {
    * @returns {Promise<Organization>} Organization details
    */
   @UseGuards(AuthGuard)
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Roles('SUPER_ADMIN')
   @Get('organizations/:id')
   async getOrganizationById(@Param('id') id: string) {
     return this.enterpriseService.getOrganizationById(id);
@@ -79,7 +79,7 @@ export class EnterpriseController {
    * @returns {Promise<Organization>} Created organization entity
    */
   @UseGuards(AuthGuard)
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Roles('SUPER_ADMIN')
   @Post('organizations')
   async createOrganization(@Body() dto: any) {
     return this.enterpriseService.createOrganization(dto);
@@ -94,7 +94,7 @@ export class EnterpriseController {
    * @returns {Promise<Organization>} Updated organization entity
    */
   @UseGuards(AuthGuard)
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Roles('SUPER_ADMIN')
   @Patch('organizations/:id')
   async updateOrganization(@Param('id') id: string, @Body() dto: any) {
     return this.enterpriseService.updateOrganization(id, dto);
@@ -112,7 +112,7 @@ export class EnterpriseController {
    * @returns {Promise<Array<object>>} Manufacturing plants list
    */
   @UseGuards(AuthGuard)
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Roles('SUPER_ADMIN')
   @Get('plants')
   async getPlants(@Query('organizationId') organizationId?: string) {
     return this.enterpriseService.getPlants(organizationId);
@@ -126,7 +126,7 @@ export class EnterpriseController {
    * @returns {Promise<Plant>} Plant details
    */
   @UseGuards(AuthGuard)
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Roles('SUPER_ADMIN')
   @Get('plants/:id')
   async getPlantById(@Param('id') id: string) {
     return this.enterpriseService.getPlantById(id);
@@ -140,7 +140,7 @@ export class EnterpriseController {
    * @returns {Promise<Plant>} Persisted plant entity
    */
   @UseGuards(AuthGuard)
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Roles('SUPER_ADMIN')
   @Post('plants')
   async createPlant(@Body() dto: any) {
     return this.enterpriseService.createPlant(dto);
@@ -155,7 +155,7 @@ export class EnterpriseController {
    * @returns {Promise<Plant>} Updated plant entity
    */
   @UseGuards(AuthGuard)
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Roles('SUPER_ADMIN')
   @Patch('plants/:id')
   async updatePlant(@Param('id') id: string, @Body() dto: any) {
     return this.enterpriseService.updatePlant(id, dto);
@@ -181,7 +181,7 @@ export class EnterpriseController {
   /**
    * @function updatePlantTheme
    * @description Updates or initializes customized CSS branding tokens for a plant site.
-   * Restricted to SUPER_ADMIN and ADMIN roles.
+   * Restricted to SUPER_ADMIN only.
    * 
    * @param {string} plantId - Target plant UUID
    * @param {any} dto - Theme name, colors object, and dark mode flag
@@ -189,7 +189,7 @@ export class EnterpriseController {
    * @returns {Promise<PlantThemeSetting>} Updated theme setting
    */
   @UseGuards(AuthGuard)
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Roles('SUPER_ADMIN')
   @Put('themes/:plantId')
   async updatePlantTheme(@Param('plantId') plantId: string, @Body() dto: any, @Request() req: any) {
     return this.enterpriseService.updatePlantTheme(plantId, {
@@ -205,12 +205,12 @@ export class EnterpriseController {
   /**
    * @function getAllUsers
    * @description Retrieves enterprise users with assigned plant and organization mappings.
-   * Accessible to SUPER_ADMIN and ADMIN roles.
+   * Accessible to SUPER_ADMIN only.
    * 
    * @returns {Promise<Array<object>>} Users list with allocated site details
    */
   @UseGuards(AuthGuard)
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Roles('SUPER_ADMIN')
   @Get('users')
   async getAllUsers() {
     return this.enterpriseService.getAllUsers();
@@ -219,7 +219,7 @@ export class EnterpriseController {
   /**
    * @function updateUserAllocation
    * @description Reassigns a user's plant, parent organization, or system role.
-   * Accessible to SUPER_ADMIN and ADMIN roles.
+   * Accessible to SUPER_ADMIN only.
    * 
    * @param {string} id - Target user UUID
    * @param {any} dto - New organizationId, plantId, or role
@@ -227,14 +227,14 @@ export class EnterpriseController {
    * @compliance 21 CFR Part 11 (§11.10(d) Authority checks)
    */
   @UseGuards(AuthGuard)
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Roles('SUPER_ADMIN')
   @Patch('users/:id/allocation')
   async updateUserAllocation(@Param('id') id: string, @Body() dto: any) {
     return this.enterpriseService.updateUserAllocation(id, dto);
   }
 
   @UseGuards(AuthGuard)
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Roles('SUPER_ADMIN')
   @Post('seed-pharma')
   async seedPharmaPlant() {
     return this.enterpriseService.seedPharmaPlant();

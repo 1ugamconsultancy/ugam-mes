@@ -141,12 +141,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           ]
         },
         ...(user?.role === 'ADMIN' ? [{
-          title: 'Enterprise Governance',
-          items: [
-            { path: '/super-admin', label: 'Enterprise Platform & Plants', icon: <Building2 size={18} /> },
-          ]
-        }] : []),
-        ...(user?.role === 'ADMIN' ? [{
           title: 'Administration',
           items: [
             { path: '/admin/material', label: 'Material Master', icon: <Boxes size={18} /> },
